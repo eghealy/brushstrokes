@@ -121,7 +121,7 @@ button.btn:disabled {
 	font-weight: 600;
 }
 
-.btn-primary:hover:not(:disabled) {
+button.btn-primary:hover:not(:disabled) {
 	background-color: var(--color-highlight-hover);
 	border-color: var(--color-highlight-hover);
 }
