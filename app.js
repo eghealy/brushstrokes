@@ -144,7 +144,7 @@ const PALETTES = {
 			{ t: 0.5, hex: "#A93920", alpha: 0.55 },
 			{ t: 1, hex: "#EFBC51", alpha: 0.92 }
 		]
-	}
+	},
 	rembrandt: {
 		label: "Rembrandt",
 		background: "#0F0909",
@@ -153,6 +153,26 @@ const PALETTES = {
 			{ t: 0, hex: "#3D2E27", alpha: 0.15 },
 			{ t: 0.5, hex: "#817B6B", alpha: 0.55 },
 			{ t: 1, hex: "#D9C39C", alpha: 0.92 }
+		]
+	},
+	okeeffe: {
+		label: "Georgia O'Keeffe",
+		background: "#042C2B",
+		highlight: "#E2B67C",
+		stops: [
+			{ t: 0, hex: "#00786B", alpha: 0.15 },
+			{ t: 0.5, hex: "#02A299", alpha: 0.55 },
+			{ t: 1, hex: "#7FD6CB", alpha: 0.92 }
+		]
+	},
+	vangogh: {
+		label: "Vincent van Gogh",
+		background: "#2C3026",
+		highlight: "#C3A21F",
+		stops: [
+			{ t: 0, hex: "#844210", alpha: 0.15 },
+			{ t: 0.5, hex: "#C3A21F", alpha: 0.55 },
+			{ t: 1, hex: "#BCBA4B", alpha: 0.92 }
 		]
 	}
 };
