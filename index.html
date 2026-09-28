@@ -4,12 +4,78 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Brushstrokes</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Rock+3D&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 	<main>
-		<h1>Brushstrokes</h1>
-		<p>Coming soon.</p>
+		<header class="intro">
+			<h1 class="rock-heading">Brushstrokes</h1>
+			<p class="subtitle">A revision heatmap: sentences that were rewritten again and again glow brighter than the ones that survived untouched.</p>
+		</header>
+
+		<div class="toolbar">
+			<div class="toolbar-group">
+				<span class="toolbar-group-label">Source</span>
+				<button type="button" id="connect-doc-btn" class="btn" disabled title="Coming soon">Connect Google Doc</button>
+				<button type="button" id="load-demo-btn" class="btn btn-primary">Load Demo</button>
+			</div>
+
+			<div class="toolbar-divider" aria-hidden="true"></div>
+
+			<div class="toolbar-group">
+				<span class="toolbar-group-label">Style</span>
+				<label class="field-inline">
+					<span class="field-label">Palette</span>
+					<select id="palette-select"></select>
+				</label>
+				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
+					<button type="button" class="segmented-option" data-mode="word">Word</button>
+					<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
+				</div>
+			</div>
+
+			<span class="mode-label" id="mode-label">No document loaded</span>
+		</div>
+
+		<div class="legend" id="legend" hidden>
+			<span class="legend-label">Edited less</span>
+			<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
+			<span class="legend-label">Edited more</span>
+		</div>
+
+		<div class="canvas">
+			<article id="doc-output" class="doc-output" aria-live="polite"></article>
+		</div>
+
+		<section class="footnote-panel" aria-live="polite">
+			<span class="footnote-label" id="footnote-label">Footnote</span>
+			<div class="footnote-content" id="footnote-content">
+				<p class="footnote-placeholder">Hover a word or sentence to see how it read in earlier drafts.</p>
+			</div>
+		</section>
+
+		<section class="about-panel">
+			<h2 class="about-heading">How this was built, and how your privacy works</h2>
+
+			<h3 class="about-subheading">AI helped write this tool. It never reads your writing.</h3>
+			<p>Claude, an AI coding assistant, was used to help write the code running this page &mdash; the HTML, CSS, and JavaScript you're looking at right now. That's the full extent of AI's involvement. Writing the tool and using the tool are two separate things: no AI has seen, or will ever see, any document you connect here.</p>
+
+			<h3 class="about-subheading">Everything runs in your browser. Nothing is uploaded anywhere.</h3>
+			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in &mdash; there is no backend server for this site. Brushstrokes has no database and no API to send your writing to, even if it wanted to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab.</p>
+
+			<h3 class="about-subheading">No AI ever reads or trains on your document.</h3>
+			<p>The comparisons that power this heatmap come from a plain, deterministic text-diffing algorithm &mdash; the same category of tool used by version control systems like Git. It's math, not AI. Your writing is never sent to Claude, ChatGPT, Gemini, or any other AI model, and it is never used to train one.</p>
+
+			<h3 class="about-subheading">What Google can still see</h3>
+			<p>Your document already lives on Google's servers, because that's where Google Docs stores it &mdash; this tool doesn't change that. Connecting a doc here uses Google's own sign-in to read data you already have access to, the same as opening the doc yourself. Brushstrokes doesn't add a new party into that relationship, and doesn't keep a copy anywhere else.</p>
+		</section>
 	</main>
+
+	<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
+	<script src="app.js"></script>
 </body>
 </html>

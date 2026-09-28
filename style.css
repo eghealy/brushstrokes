@@ -1,21 +1,305 @@
+:root {
+	/* Fallback theme values — overwritten immediately by applyPaletteTheme()
+	   in app.js, but kept here so the page never renders unstyled. */
+	--color-background: #0a2243;
+	--color-panel-bg: #14295c;
+	--color-control-bg: #1c3970;
+	--color-border: #3f5a99;
+	--color-text: #e2e5ea;
+	--color-text-muted: #a9b3c7;
+	--color-text-faint: #7186ac;
+	--color-highlight: #fa935c;
+	--color-highlight-text: #17223d;
+	--color-highlight-hover: #fbaf82;
+}
+
 * {
 	box-sizing: border-box;
 }
 
 body {
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-	background-color: #ffffff;
-	color: #111111;
+	font-family: "Source Sans 3", sans-serif;
+	background-color: var(--color-background);
+	color: var(--color-text);
 }
 
 main {
-	max-width: 40rem;
+	max-width: 52rem;
 	margin: 4rem auto;
 	padding: 0 1.5rem;
 }
 
-h1 {
-	font-size: 2rem;
+h1.rock-heading {
+	font-family: "Rock 3D", cursive;
+	font-weight: 400;
+	font-size: clamp(2.6rem, 2rem + 3vw, 4.8rem);
+	text-transform: uppercase;
+	text-align: center;
+	color: var(--color-highlight);
 	margin-bottom: 0.5rem;
+}
+
+.subtitle {
+	color: var(--color-text-muted);
+	line-height: 1.5;
+	margin-top: 0;
+	text-align: center;
+}
+
+.toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+	margin: 6rem 0 1rem;
+	padding: 0.6rem 1.1rem;
+	border-radius: 0.7rem;
+	min-height: 3.25rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-group {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+.toolbar-group-label {
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--color-text-faint);
+}
+
+.toolbar-divider {
+	align-self: stretch;
+	width: 1px;
+	background-color: rgba(255, 255, 255, 0.08);
+}
+
+button.btn {
+	font: inherit;
+	font-size: 0.9rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 0.4rem;
+	border: 1px solid var(--color-border);
+	background-color: var(--color-control-bg);
+	color: var(--color-text);
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+button.btn:hover:not(:disabled) {
+	border-color: var(--color-highlight);
+}
+
+button.btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.btn-primary {
+	border-color: var(--color-highlight);
+	background-color: var(--color-highlight);
+	color: var(--color-highlight-text);
+	font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+	background-color: var(--color-highlight-hover);
+	border-color: var(--color-highlight-hover);
+}
+
+.field-inline {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.field-label {
+	font-size: 0.75rem;
+	color: var(--color-text-muted);
+}
+
+.field-inline select {
+	font: inherit;
+	font-size: 0.85rem;
+	padding: 0.35rem 1.9rem 0.35rem 0.6rem;
+	border-radius: 0.4rem;
+	border: 1px solid var(--color-border);
+	background-color: var(--color-control-bg);
+	color: var(--color-text);
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: var(--select-caret);
+	background-repeat: no-repeat;
+	background-position: right 0.8rem center;
+	background-size: 0.6rem 0.4rem;
+}
+
+.segmented {
+	display: inline-flex;
+	padding: 0.15rem;
+	border-radius: 0.5rem;
+	background-color: var(--color-control-bg);
+	border: 1px solid var(--color-border);
+}
+
+.segmented-option {
+	font: inherit;
+	font-size: 0.8rem;
+	padding: 0.3rem 0.75rem;
+	border: none;
+	border-radius: 0.35rem;
+	background-color: transparent;
+	color: var(--color-text-muted);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.segmented-option:hover {
+	color: var(--color-text);
+}
+
+.segmented-option.active {
+	background-color: var(--color-highlight);
+	color: var(--color-highlight-text);
+	font-weight: 600;
+}
+
+.mode-label {
+	margin-left: auto;
+	font-size: 0.8rem;
+	color: var(--color-text-faint);
+	align-self: center;
+}
+
+.legend {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-size: 0.8rem;
+	color: var(--color-text-muted);
+	margin-bottom: 1.5rem;
+}
+
+.legend-gradient {
+	display: inline-block;
+	width: 8rem;
+	height: 0.6rem;
+	border-radius: 999px;
+}
+
+.canvas {
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
+	padding: 1.5rem 1.75rem;
+	max-height: 22rem;
+	overflow-y: auto;
+}
+
+.footnote-panel {
+	margin-top: 1.25rem;
+	margin-bottom: 2rem;
+	padding: 1.25rem 1.5rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	min-height: 6rem;
+}
+
+.footnote-label {
+	display: block;
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--color-text-faint);
+	margin-bottom: 0.75rem;
+}
+
+.footnote-placeholder {
+	margin: 0;
+	color: var(--color-text-faint);
+	font-size: 0.9rem;
+	font-style: italic;
+}
+
+.footnote-list {
+	margin: 0;
+	padding-left: 1.25rem;
+	color: var(--color-text);
+	font-size: 0.95rem;
+	line-height: 1.7;
+}
+
+.footnote-list li {
+	margin-bottom: 0.3rem;
+}
+
+.footnote-list li::marker {
+	color: var(--color-highlight);
+}
+
+.doc-output {
+	line-height: 1.9;
+	font-size: 1.05rem;
+	white-space: pre-wrap;
+}
+
+.doc-output .sentence {
+	padding: 0.1em 0.05em;
+	border-radius: 0.3em;
+}
+
+.doc-output .word {
+	transition: text-shadow 0.2s ease;
+}
+
+.doc-output .word.heat-high {
+	text-shadow: 0 0 0.5em var(--heat-glow-color, rgba(239, 68, 68, 0.6));
+	font-weight: 600;
+}
+
+.about-panel {
+	margin-bottom: 5rem;
+	padding: 1.75rem 2rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-heading {
+	font-family: "Source Sans 3", sans-serif;
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--color-text);
+	margin: 0 0 1.5rem;
+}
+
+.about-subheading {
+	font-family: "Source Sans 3", sans-serif;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--color-highlight);
+	margin: 1.5rem 0 0.5rem;
+}
+
+.about-subheading:first-of-type {
+	margin-top: 0;
+}
+
+.about-panel p {
+	margin: 0;
+	color: var(--color-text-muted);
+	font-size: 0.9rem;
+	line-height: 1.7;
 }

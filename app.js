@@ -1,0 +1,453 @@
+/*
+ * Placeholder revision history for demoing the heatmap without a real
+ * Google Doc connected yet. Nothing here is real content — just enough
+ * variation (some sentences rewritten repeatedly, some untouched) to see
+ * the heat gradient work.
+ */
+const MOCK_REVISIONS = [
+	"The garden was quiet in the early morning. Birds moved between the trees. A gate stood at the far end of the path.",
+	"The garden was quiet in the early morning light. Birds moved between the trees, calling to each other. A gate stood at the far end of the path.",
+	"The garden sat quiet under the early morning light. Birds moved between the trees, calling to each other. A gate stood rusted at the far end of the path.",
+	"The garden sat quiet under a pale morning light. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path.",
+	"The garden sat still under a pale morning light. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path, half open.",
+	"The garden sat still under a pale morning light, dew still clinging to the grass. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path, half open.",
+	"The garden sat still under a pale morning light, dew clinging to the grass. Birds darted between the trees, calling to one another in the cold air. A rusted gate marked the far end of the path, half open, waiting."
+];
+
+function splitSentences(text) {
+	const trimmed = text.trim();
+	if (!trimmed) return [];
+	const matches = trimmed.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g);
+	return matches ? matches.map((s) => s.trim()).filter(Boolean) : [trimmed];
+}
+
+function splitWords(text) {
+	const trimmed = text.trim();
+	if (!trimmed) return [];
+	return trimmed.split(/\s+/).filter(Boolean);
+}
+
+/*
+ * Walks the revision history and builds a running "ledger" of tokens
+ * (sentences or words, depending on `tokenize`). Each entry carries an
+ * edit count and a `history` array of every distinct text value the
+ * token has had, in chronological order, ending with its current text.
+ * When a token is replaced by a similar one in the next revision, the
+ * new token inherits and extends the old one's count/history; brand-new
+ * tokens start fresh; untouched tokens carry their count/history forward
+ * unchanged.
+ */
+function computeLedger(revisions, tokenize) {
+	let ledger = tokenize(revisions[0]).map((text) => ({ text, count: 1, history: [text] }));
+
+	for (let i = 1; i < revisions.length; i++) {
+		const prevTokens = ledger.map((entry) => entry.text);
+		const currTokens = tokenize(revisions[i]);
+		const diffParts = Diff.diffArrays(prevTokens, currTokens);
+
+		const nextLedger = [];
+		let pendingRemoved = [];
+
+		function flushPendingRemoved() {
+			pendingRemoved = [];
+		}
+
+		for (const part of diffParts) {
+			if (!part.added && !part.removed) {
+				for (const text of part.value) {
+					const entry = ledgerEntryFor(ledger, text);
+					nextLedger.push({ text, count: entry.count, history: entry.history });
+				}
+				flushPendingRemoved();
+			} else if (part.removed) {
+				pendingRemoved = part.value.map((text) => ledgerEntryFor(ledger, text));
+			} else if (part.added) {
+				part.value.forEach((text, idx) => {
+					const priorEntry = pendingRemoved[idx] ?? pendingRemoved[pendingRemoved.length - 1];
+					if (priorEntry) {
+						nextLedger.push({
+							text,
+							count: priorEntry.count + 1,
+							history: [...priorEntry.history, text]
+						});
+					} else {
+						nextLedger.push({ text, count: 1, history: [text] });
+					}
+				});
+				flushPendingRemoved();
+			}
+		}
+
+		ledger = nextLedger;
+	}
+
+	return ledger;
+}
+
+function computeSentenceLedger(revisions) {
+	return computeLedger(revisions, splitSentences);
+}
+
+function computeWordLedger(revisions) {
+	return computeLedger(revisions, splitWords);
+}
+
+function ledgerEntryFor(ledger, text) {
+	const match = ledger.find((entry) => entry.text === text);
+	return match || { text, count: 1, history: [text] };
+}
+
+/*
+ * Color palettes drive two independent things:
+ *
+ *   1. `stops` — the heat gradient used to color edited words/sentences.
+ *      Each stop is a hex color + alpha (opacity) at a point t from 0
+ *      (least-edited) to 1 (most-edited); colors interpolate between them.
+ *
+ *   2. Site-wide theme colors — `background` and `highlight` are required;
+ *      everything else (panel/control backgrounds, borders, body text,
+ *      muted text, and the text color used on top of `highlight`) is
+ *      auto-derived from those two so you don't have to hand-pick a full
+ *      theme. Add any of the optional keys below to override a specific
+ *      derived color for a palette without affecting the others:
+ *        panelBackground, controlBackground, border,
+ *        textPrimary, textMuted, textFaint,
+ *        highlightText, highlightHover
+ *
+ * `background` is deliberately kept separate from `stops` — it's UI
+ * chrome, not part of the edit-heat visualization, so it's never used
+ * as a gradient color.
+ *
+ * To add a new palette: copy a block below, give it a new key and a
+ * "label" (shown in the picker dropdown), pick a background + highlight
+ * hex, and list your own gradient stops. It shows up in the dropdown
+ * and re-themes the whole site automatically — no other code changes.
+ */
+const PALETTES = {
+	thermal: {
+		label: "Thermal",
+		background: "#0A2243",
+		highlight: "#FA935C",
+		stops: [
+			{ t: 0, hex: "#3B82F6", alpha: 0.2 },
+			{ t: 0.33, hex: "#22D399", alpha: 0.4 },
+			{ t: 0.66, hex: "#FACC15", alpha: 0.65 },
+			{ t: 1, hex: "#EF4444", alpha: 0.9 }
+		]
+	},
+	portfolioGlow: {
+		label: "Portfolio Glow",
+		background: "#12203A",
+		highlight: "#FFD166",
+		stops: [
+			{ t: 0, hex: "#B7E6E1", alpha: 0.15 },
+			{ t: 0.5, hex: "#FA935C", alpha: 0.55 },
+			{ t: 1, hex: "#FFD166", alpha: 0.92 }
+		]
+	}
+};
+
+const DEFAULT_PALETTE_KEY = "thermal";
+const DEFAULT_ANALYSIS_MODE = "word";
+let currentPaletteKey = DEFAULT_PALETTE_KEY;
+let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
+let currentSentenceLedger = null;
+let currentWordLedger = null;
+
+function hexToRgb(hex) {
+	const clean = hex.replace("#", "");
+	const bigint = parseInt(clean, 16);
+	return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+}
+
+function rgbToHex(r, g, b) {
+	const toHex = (c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0");
+	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+// Mixes a hex color toward white by `amount` (0-1). Used to derive lighter
+// "elevated" surface/text shades from a palette's base background color.
+function lightenHex(hex, amount) {
+	const [r, g, b] = hexToRgb(hex);
+	const mix = (c) => c + (255 - c) * amount;
+	return rgbToHex(mix(r), mix(g), mix(b));
+}
+
+// WCAG relative luminance, used to auto-pick a readable text color for
+// whatever sits on top of a palette's highlight color.
+function relativeLuminance(hex) {
+	const [r, g, b] = hexToRgb(hex).map((c) => {
+		const s = c / 255;
+		return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+	});
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(luminanceA, luminanceB) {
+	const lighter = Math.max(luminanceA, luminanceB);
+	const darker = Math.min(luminanceA, luminanceB);
+	return (lighter + 0.05) / (darker + 0.05);
+}
+
+function pickContrastText(hex) {
+	const luminance = relativeLuminance(hex);
+	const contrastWithDark = contrastRatio(luminance, relativeLuminance("#17223D"));
+	const contrastWithLight = contrastRatio(luminance, relativeLuminance("#F4F5F7"));
+	return contrastWithDark >= contrastWithLight ? "#17223D" : "#F4F5F7";
+}
+
+/*
+ * Applies a palette's site-wide theme by setting CSS custom properties on
+ * the root element. `background`/`highlight` come straight from the
+ * palette; everything else is auto-derived unless the palette explicitly
+ * overrides it. This is intentionally separate from `palette.stops`
+ * (the heat gradient) — the background color is UI chrome and never
+ * feeds into the edit-heat visualization.
+ */
+function applyPaletteTheme(palette) {
+	const background = palette.background || "#0A2243";
+	const highlight = palette.highlight || "#FA935C";
+
+	const theme = {
+		"--color-background": background,
+		"--color-panel-bg": palette.panelBackground || lightenHex(background, 0.06),
+		"--color-control-bg": palette.controlBackground || lightenHex(background, 0.12),
+		"--color-border": palette.border || lightenHex(background, 0.22),
+		"--color-text": palette.textPrimary || lightenHex(background, 0.86),
+		"--color-text-muted": palette.textMuted || lightenHex(background, 0.62),
+		"--color-text-faint": palette.textFaint || lightenHex(background, 0.42),
+		"--color-highlight": highlight,
+		"--color-highlight-text": palette.highlightText || pickContrastText(highlight),
+		"--color-highlight-hover": palette.highlightHover || lightenHex(highlight, 0.15)
+	};
+
+	const root = document.documentElement.style;
+	Object.entries(theme).forEach(([prop, value]) => root.setProperty(prop, value));
+
+	// Re-tint the dropdown caret to match the new muted-text color.
+	const caretSvg =
+		`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6">` +
+		`<path d="M1 1l4 4 4-4" fill="none" stroke="${encodeURIComponent(theme["--color-text-muted"])}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+	root.setProperty("--select-caret", `url('${caretSvg}')`);
+}
+
+function heatColor(t, palette, alphaScale) {
+	const stops = palette.stops;
+	let lower = stops[0];
+	let upper = stops[stops.length - 1];
+	for (let i = 0; i < stops.length - 1; i++) {
+		if (t >= stops[i].t && t <= stops[i + 1].t) {
+			lower = stops[i];
+			upper = stops[i + 1];
+			break;
+		}
+	}
+
+	const span = upper.t - lower.t || 1;
+	const localT = (t - lower.t) / span;
+	const lowerRgb = hexToRgb(lower.hex);
+	const upperRgb = hexToRgb(upper.hex);
+	const rgb = lowerRgb.map((c, idx) => Math.round(c + (upperRgb[idx] - c) * localT));
+	let alpha = lower.alpha + (upper.alpha - lower.alpha) * localT;
+	if (alphaScale) alpha *= alphaScale;
+
+	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
+}
+
+function paletteToCssGradient(palette) {
+	const stops = palette.stops
+		.map((stop) => {
+			const rgb = hexToRgb(stop.hex);
+			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${stop.alpha}) ${stop.t * 100}%`;
+		})
+		.join(", ");
+	return `linear-gradient(90deg, ${stops})`;
+}
+
+function showFootnote(entry, kind) {
+	const label = document.getElementById("footnote-label");
+	const content = document.getElementById("footnote-content");
+	const priorVersions = entry.history.slice(0, -1);
+
+	label.textContent = kind === "word" ? `Earlier drafts of "${entry.text}"` : "Earlier drafts of this sentence";
+
+	if (priorVersions.length === 0) {
+		content.innerHTML = "";
+		const placeholder = document.createElement("p");
+		placeholder.className = "footnote-placeholder";
+		placeholder.textContent =
+			kind === "word"
+				? "This word hasn't changed since it first appeared."
+				: "This sentence hasn't changed since it first appeared.";
+		content.appendChild(placeholder);
+		return;
+	}
+
+	content.innerHTML = "";
+	const list = document.createElement("ol");
+	list.className = "footnote-list";
+	priorVersions.forEach((text) => {
+		const li = document.createElement("li");
+		li.textContent = text;
+		list.appendChild(li);
+	});
+	content.appendChild(list);
+}
+
+function resetFootnote() {
+	const label = document.getElementById("footnote-label");
+	const content = document.getElementById("footnote-content");
+	label.textContent = "Footnote";
+	content.innerHTML = "";
+	const placeholder = document.createElement("p");
+	placeholder.className = "footnote-placeholder";
+	placeholder.textContent = "Hover a word or sentence to see how it read in earlier drafts.";
+	content.appendChild(placeholder);
+}
+
+function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output) {
+	const maxWordCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
+	const topStop = palette.stops[palette.stops.length - 1];
+	const topRgb = hexToRgb(topStop.hex);
+
+	// Normalized (0-1) heat for every word, in document order.
+	const wordNormalized = wordLedger.map((entry) =>
+		maxWordCount > 1 ? (entry.count - 1) / (maxWordCount - 1) : 0
+	);
+
+	let wordCursor = 0;
+
+	sentenceLedger.forEach((sentenceEntry, sentenceIdx) => {
+		const sentenceSpan = document.createElement("span");
+		sentenceSpan.className = "sentence";
+		sentenceSpan.title = `Sentence edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
+
+		const wordsInSentence = splitWords(sentenceEntry.text).length;
+		const wordEntries = wordLedger.slice(wordCursor, wordCursor + wordsInSentence);
+
+		// One continuous gradient across the whole sentence — a color stop
+		// per word, positioned at that word's fraction across the sentence.
+		// CSS interpolates smoothly between stops, so the heat flows across
+		// word boundaries instead of jumping in discrete blocks.
+		const stops = wordEntries.map((_, wordIdx) => {
+			const globalIdx = wordCursor + wordIdx;
+			const pos = wordEntries.length > 1 ? (wordIdx / (wordEntries.length - 1)) * 100 : 50;
+			return `${heatColor(wordNormalized[globalIdx], palette)} ${pos}%`;
+		});
+		sentenceSpan.style.backgroundImage = `linear-gradient(to right, ${stops.join(", ")})`;
+
+		wordEntries.forEach((wordEntry, wordIdx) => {
+			const globalIdx = wordCursor + wordIdx;
+			const own = wordNormalized[globalIdx];
+
+			const wordSpan = document.createElement("span");
+			wordSpan.className = "word";
+			if (own > 0.75) {
+				wordSpan.classList.add("heat-high");
+				wordSpan.style.setProperty(
+					"--heat-glow-color",
+					`rgba(${topRgb[0]}, ${topRgb[1]}, ${topRgb[2]}, 0.6)`
+				);
+			}
+			wordSpan.title = `"${wordEntry.text}" edited ${wordEntry.count} time${wordEntry.count === 1 ? "" : "s"}`;
+			wordSpan.textContent = wordEntry.text;
+			wordSpan.addEventListener("mouseenter", () => showFootnote(wordEntry, "word"));
+			wordSpan.addEventListener("mouseleave", resetFootnote);
+			sentenceSpan.appendChild(wordSpan);
+			if (wordIdx < wordEntries.length - 1) sentenceSpan.appendChild(document.createTextNode(" "));
+		});
+
+		wordCursor += wordsInSentence;
+
+		output.appendChild(sentenceSpan);
+		if (sentenceIdx < sentenceLedger.length - 1) output.appendChild(document.createTextNode(" "));
+	});
+}
+
+function renderSentenceLevelHeatmap(sentenceLedger, palette, output) {
+	const maxSentenceCount = Math.max(...sentenceLedger.map((entry) => entry.count), 1);
+
+	sentenceLedger.forEach((sentenceEntry, sentenceIdx) => {
+		const sentenceSpan = document.createElement("span");
+		sentenceSpan.className = "sentence";
+		const normalized =
+			maxSentenceCount > 1 ? (sentenceEntry.count - 1) / (maxSentenceCount - 1) : 0;
+		sentenceSpan.style.backgroundColor = heatColor(normalized, palette);
+		sentenceSpan.title = `Edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
+		sentenceSpan.textContent = sentenceEntry.text;
+		sentenceSpan.addEventListener("mouseenter", () => showFootnote(sentenceEntry, "sentence"));
+		sentenceSpan.addEventListener("mouseleave", resetFootnote);
+		output.appendChild(sentenceSpan);
+		if (sentenceIdx < sentenceLedger.length - 1) output.appendChild(document.createTextNode(" "));
+	});
+}
+
+function renderHeatmap(sentenceLedger, wordLedger) {
+	currentSentenceLedger = sentenceLedger;
+	currentWordLedger = wordLedger;
+	const palette = PALETTES[currentPaletteKey];
+	const output = document.getElementById("doc-output");
+	output.innerHTML = "";
+	resetFootnote();
+
+	if (currentAnalysisMode === "sentence") {
+		renderSentenceLevelHeatmap(sentenceLedger, palette, output);
+	} else {
+		renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output);
+	}
+
+	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
+	document.getElementById("legend").hidden = false;
+}
+
+function populatePaletteSelect() {
+	const select = document.getElementById("palette-select");
+	Object.entries(PALETTES).forEach(([key, palette]) => {
+		const option = document.createElement("option");
+		option.value = key;
+		option.textContent = palette.label;
+		select.appendChild(option);
+	});
+	select.value = currentPaletteKey;
+
+	select.addEventListener("change", () => {
+		currentPaletteKey = select.value;
+		applyPaletteTheme(PALETTES[currentPaletteKey]);
+		if (currentSentenceLedger && currentWordLedger) {
+			renderHeatmap(currentSentenceLedger, currentWordLedger);
+		}
+	});
+}
+
+function initAnalysisToggle() {
+	const toggle = document.getElementById("analysis-toggle");
+	const options = Array.from(toggle.querySelectorAll(".segmented-option"));
+
+	function setActive(mode) {
+		options.forEach((btn) => btn.classList.toggle("active", btn.dataset.mode === mode));
+	}
+
+	setActive(currentAnalysisMode);
+
+	options.forEach((btn) => {
+		btn.addEventListener("click", () => {
+			currentAnalysisMode = btn.dataset.mode;
+			setActive(currentAnalysisMode);
+			if (currentSentenceLedger && currentWordLedger) {
+				renderHeatmap(currentSentenceLedger, currentWordLedger);
+			}
+		});
+	});
+}
+
+applyPaletteTheme(PALETTES[currentPaletteKey]);
+populatePaletteSelect();
+initAnalysisToggle();
+
+document.getElementById("load-demo-btn").addEventListener("click", () => {
+	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
+	const wordLedger = computeWordLedger(MOCK_REVISIONS);
+	renderHeatmap(sentenceLedger, wordLedger);
+	document.getElementById("mode-label").textContent =
+		`Demo document — ${MOCK_REVISIONS.length} revisions`;
+});
