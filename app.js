@@ -593,26 +593,47 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-// Rough approximation of a single-spaced 8.5x11 page (1in margins,
-// ~11pt sans-serif) — not meant to be typographically exact, just close
-// enough that a word's position in the graphic roughly matches where
-// it'd actually fall on a printed page.
+// The graphic shows a fixed-size block of words — roughly enough to
+// fill the whole 8.5x11 canvas at a readable pixel size — rather than a
+// realistic full page, so cells stay big regardless of document length.
+const WORD_WINDOW_SIZE = 250;
 const CHARS_PER_LINE = 90;
-const LINES_PER_PAGE = 45;
 const PAGE_WIDTH = 850;
 const PAGE_HEIGHT = 1100;
 const CHAR_WIDTH = PAGE_WIDTH / CHARS_PER_LINE;
-const LINE_HEIGHT = PAGE_HEIGHT / LINES_PER_PAGE;
 
-// Simulates word-wrapping to place each word at an approximate
-// (line, column) position — the same greedy wrap a text editor uses —
-// then groups words by which page that line falls on.
-function layoutWordsIntoPages(wordLedger) {
+// Finds the WORD_WINDOW_SIZE-word block (by document order) with the
+// highest total edit count, via an O(n) sliding-window sum. Shorter
+// documents just use every word they have.
+function findMostChangedWordBlock(wordLedger) {
+	if (wordLedger.length <= WORD_WINDOW_SIZE) return wordLedger;
+
+	let windowSum = 0;
+	for (let i = 0; i < WORD_WINDOW_SIZE; i++) windowSum += wordLedger[i].count;
+
+	let bestSum = windowSum;
+	let bestStart = 0;
+
+	for (let start = 1; start <= wordLedger.length - WORD_WINDOW_SIZE; start++) {
+		windowSum += wordLedger[start + WORD_WINDOW_SIZE - 1].count - wordLedger[start - 1].count;
+		if (windowSum > bestSum) {
+			bestSum = windowSum;
+			bestStart = start;
+		}
+	}
+
+	return wordLedger.slice(bestStart, bestStart + WORD_WINDOW_SIZE);
+}
+
+// Word-wraps a block of words at CHARS_PER_LINE (the same greedy wrap a
+// text editor uses) to place each at a (line, column) position, and
+// reports how many lines the block took — used to derive a line height
+// that makes however many lines this specific block needs fill the
+// page exactly, rather than assuming a fixed line count.
+function layoutWordBlock(words) {
 	let line = 0;
 	let col = 0;
-	const pages = new Map();
-
-	wordLedger.forEach((entry) => {
+	const positioned = words.map((entry) => {
 		const wordLen = entry.text.length;
 		const withSpace = col > 0 ? wordLen + 1 : wordLen;
 		if (col > 0 && col + withSpace > CHARS_PER_LINE) {
@@ -621,36 +642,17 @@ function layoutWordsIntoPages(wordLedger) {
 		}
 		const startCol = col > 0 ? col + 1 : col;
 		col = startCol + wordLen;
-
-		const page = Math.floor(line / LINES_PER_PAGE);
-		const lineWithinPage = line - page * LINES_PER_PAGE;
-
-		if (!pages.has(page)) pages.set(page, []);
-		pages.get(page).push({ entry, lineWithinPage, startCol, wordLen });
+		return { entry, line, startCol, wordLen };
 	});
 
-	return pages;
+	return { positioned, lineCount: line + 1 };
 }
 
-// "Most-changed" = highest total edit count among words on that page.
-function findMostChangedPage(pages) {
-	let best = null;
-	let bestScore = -1;
-	pages.forEach((items) => {
-		const score = items.reduce((sum, item) => sum + item.entry.count, 0);
-		if (score > bestScore) {
-			bestScore = score;
-			best = items;
-		}
-	});
-	return best;
-}
-
-// A poster-sized (8.5x11in, portrait) pixel mosaic of whichever page of
-// the document was edited the most — one small rect per word, colored
-// by that word's heat and positioned to match where it actually falls
-// on the page, then blurred (via an SVG filter) so neighboring cells
-// blend into each other instead of reading as hard-edged tiles.
+// A poster-sized (8.5x11in, portrait) pixel mosaic of the most heavily
+// edited ~250-word block in the document — one rect per word, colored
+// by that word's heat and positioned to match its real (line, column)
+// within the block, then blurred (via an SVG filter) so neighboring
+// cells blend into each other instead of reading as hard-edged tiles.
 function renderFrameGraphic(wordLedger, palette) {
 	const pixels = document.getElementById("frame-pixels");
 	const bg = document.getElementById("frame-bg");
@@ -665,20 +667,21 @@ function renderFrameGraphic(wordLedger, palette) {
 
 	bg.setAttribute("fill", palette.background || "#0A2243");
 
-	const pages = layoutWordsIntoPages(wordLedger);
-	const pageItems = findMostChangedPage(pages);
+	const block = findMostChangedWordBlock(wordLedger);
+	const { positioned, lineCount } = layoutWordBlock(block);
+	const lineHeight = PAGE_HEIGHT / lineCount;
 	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
 
 	pixels.innerHTML = "";
-	pageItems.forEach(({ entry, lineWithinPage, startCol, wordLen }) => {
+	positioned.forEach(({ entry, line, startCol, wordLen }) => {
 		const normalized = maxCount > 1 ? (entry.count - 1) / (maxCount - 1) : 0;
 		const { rgb, alpha } = heatColorComponents(normalized, palette);
 
 		const rect = document.createElementNS(SVG_NS, "rect");
 		rect.setAttribute("x", (startCol * CHAR_WIDTH).toFixed(2));
-		rect.setAttribute("y", (lineWithinPage * LINE_HEIGHT).toFixed(2));
+		rect.setAttribute("y", (line * lineHeight).toFixed(2));
 		rect.setAttribute("width", (wordLen * CHAR_WIDTH).toFixed(2));
-		rect.setAttribute("height", LINE_HEIGHT.toFixed(2));
+		rect.setAttribute("height", lineHeight.toFixed(2));
 		rect.setAttribute("fill", `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
 		rect.setAttribute("fill-opacity", alpha.toFixed(2));
 		pixels.appendChild(rect);
