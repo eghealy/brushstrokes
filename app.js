@@ -215,13 +215,15 @@ const PALETTES = {
 	},
 	henriMatisse: {
 		label: "Henri Matisse",
-		background: "#180E0A",
-		highlight: "#EFBC51",
+		background: "#953C26",
+		highlight: "#C5C1B5",
 		stops: [
-			{ t: 0, hex: "#4B1E09", alpha: 0.80},
-			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
-			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
-			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
+			{ t: 0, hex: "#994B35", alpha: 0.80},
+			{ t: 0.20, hex: "#B76F27", alpha: 0.80},
+			{ t: 0.40, hex: "#7097AB", alpha: 0.80},
+			{ t: 0.60, hex: "#A0C1B0", alpha: 0.80},
+			{ t: 0.80, hex: "#C2B585", alpha: 0.80},
+			{ t: 1, hex: "#E77EA5", alpha: 0.80}
 		]
 	},
 	rembrandt: {
