@@ -818,6 +818,11 @@ const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 // the whole arc of the document without hammering the API.
 const MAX_REVISIONS_TO_FETCH = 40;
 
+// Pause between each revision fetch to avoid bursting Google's export
+// endpoints, which rate-limit (HTTP 429) more aggressively than the
+// main Drive REST API.
+const REVISION_FETCH_PACING_MS = 150;
+
 let googleTokenClient = null;
 let googleAccessToken = null;
 let pickerLoaded = false;
@@ -834,10 +839,30 @@ function sampleEvenly(items, max) {
 	return [...new Set(picked)];
 }
 
-async function driveApiFetch(url) {
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Fetching a document's full revision history means many sequential
+// requests to Google's export endpoints, which rate-limit more
+// aggressively than the main Drive REST API. A 429 here is expected
+// occasionally on larger documents, not a hard failure — retry with
+// backoff (honoring Retry-After if Google sends one) before giving up.
+const MAX_RETRY_ATTEMPTS = 4;
+
+async function driveApiFetch(url, attempt = 1) {
 	const response = await fetch(url, {
 		headers: { Authorization: `Bearer ${googleAccessToken}` }
 	});
+
+	if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
+		const retryAfterHeader = response.headers.get("Retry-After");
+		const waitMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 800 * 2 ** (attempt - 1);
+		setSourceStatus(`Google is rate-limiting requests — retrying in ${Math.ceil(waitMs / 1000)}s…`);
+		await sleep(waitMs);
+		return driveApiFetch(url, attempt + 1);
+	}
+
 	if (!response.ok) {
 		const body = await response.text();
 		throw new Error(`Drive API error ${response.status}: ${body}`);
@@ -903,6 +928,11 @@ async function loadGoogleDoc(fileId) {
 	for (let i = 0; i < sampledIds.length; i++) {
 		setSourceStatus(`Fetching revision ${i + 1} of ${sampledIds.length}…`);
 		texts.push(await fetchRevisionText(fileId, sampledIds[i]));
+		// Small pause between revisions — each one is two requests to
+		// Google's export endpoints, which rate-limit bursts more
+		// aggressively than the main Drive API. Pacing them out avoids
+		// tripping that limit in the first place.
+		if (i < sampledIds.length - 1) await sleep(REVISION_FETCH_PACING_MS);
 	}
 
 	const sentenceLedger = computeSentenceLedger(texts);
