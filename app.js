@@ -146,13 +146,14 @@ function ledgerEntryFor(ledger, text) {
 const PALETTES = {
 	johnLurie: {
 		label: "John Lurie",
-		background: "#0D2337",
-		highlight: "#A5DB79",
+		background: "#A5DB79",
+		highlight: "#0D2337",
 		stops: [
-			{ t: 0, hex: "#40B8C2", alpha: 0.80 },
-			{ t: 0.33, hex: "#B84F20", alpha: 0.80 },
-			{ t: 0.66, hex: "#D4BB00", alpha: 0.80 },
-			{ t: 1, hex: "#A5DB79", alpha: 0.80 }
+			{ t: 0, hex: "#0D2337", alpha: 0.80 },
+			{ t: 0.25, hex: "#40B8C2", alpha: 0.80 },
+			{ t: 0.50, hex: "#B84F20", alpha: 0.80 },
+			{ t: 0.75, hex: "#D4BB00", alpha: 0.80 },
+			{ t: 1, hex: "#A4DD76", alpha: 0.80 }
 		]
 	},
 	johnSingerSargent: {
@@ -168,26 +169,27 @@ const PALETTES = {
 	},
 	noahDavis: {
 		label: "Noah Davis",
-		background: "#463F39",
-		highlight: "#C6AF95",
+		background: "#9A8D90",
+		highlight: "#463F39",
 		stops: [
 			{ t: 0, hex: "#6D5F60", alpha: 0.80},
-			{ t: 0.33, hex: "#7B7B7E", alpha: 0.80},
-			{ t: 0.66, hex: "#9A8D90", alpha: 0.80},
+			{ t: 0.25, hex: "#7B7B7E", alpha: 0.80},
+			{ t: 0.50, hex: "#9A8D90", alpha: 0.80},
+			{ t: 0.75, hex: "#C6AF95", alpha: 0.80},
 			{ t: 1, hex: "#728164", alpha: 0.80}
 		]
 	},
 	davidHockney: {
 		label: "David Hockney",
-		background: "#171413",
+		background: "#AB3153",
 		highlight: "#A9F2EB",
 		stops: [
-			{ t: 0, hex: "#865449", alpha: 0.80},
-			{ t: 0.20, hex: "#AB3153", alpha: 0.80},
-			{ t: 0.40, hex: "#ECABB1", alpha: 0.80},
-			{ t: 0.60, hex: "#669D64", alpha: 0.80},
-			{ t: 0.80, hex: "#5FC0EC", alpha: 0.80},
-			{ t: 1, hex: "#A9F2EB", alpha: 0.80}
+			{ t: 0, hex: "#531708", alpha: 0.80},
+			{ t: 0.20, hex: "#0F8988", alpha: 0.80},
+			{ t: 0.40, hex: "#669D64", alpha: 0.80},
+			{ t: 0.60, hex: "#58BDE9", alpha: 0.80},
+			{ t: 0.80, hex: "#A9F2EB", alpha: 0.80},
+			{ t: 1, hex: "#ECABB1", alpha: 0.80}
 		]
 	},
 	kaySage: {
@@ -208,8 +210,9 @@ const PALETTES = {
 		highlight: "#F0EFEB",
 		stops: [
 			{ t: 0, hex: "#BA1325", alpha: 0.80},
-			{ t: 0.33, hex: "#ECD1D2", alpha: 0.80},
-			{ t: 0.66, hex: "#F0EFEB", alpha: 0.80},
+			{ t: 0.25, hex: "#ECD1D2", alpha: 0.80},
+			{ t: 0.50, hex: "#014784", alpha: 0.80},
+			{ t: 0.75, hex: "#F0EFEB", alpha: 0.80},
 			{ t: 1, hex: "#FCE013", alpha: 0.80}
 		]
 	},
@@ -239,23 +242,25 @@ const PALETTES = {
 	},
 	okeeffe: {
 		label: "Georgia O'Keeffe",
-		background: "#042C2B",
+		background: "#00A79F",
 		highlight: "#E2B67C",
 		stops: [
-			{ t: 0, hex: "#046754", alpha: 0.80 },
-			{ t: 0.33, hex: "#00A79F", alpha: 0.80 },
-			{ t: 0.66, hex: "#83DBCF", alpha: 0.80 },
+			{ t: 0, hex: "#042425", alpha: 0.80 },
+			{ t: 0.25, hex: "#035847", alpha: 0.80 },
+			{ t: 0.50, hex: "#01ABA2", alpha: 0.80 },
+			{ t: 0.75, hex: "#75D6CB", alpha: 0.80 },
 			{ t: 1, hex: "#E7BB81", alpha: 0.80 }
 		]
 	},
 	vangogh: {
 		label: "Vincent van Gogh",
-		background: "#2C3026",
-		highlight: "#C3A21F",
+		background: "#C3A21F",
+		highlight: "#844210",
 		stops: [
-			{ t: 0, hex: "#844210", alpha: 0.80 },
-			{ t: 0.33, hex: "#9E6F0C", alpha: 0.80 },
-			{ t: 0.66, hex: "#C3A21F", alpha: 0.80 },
+			{ t: 0, hex: "#2C3026", alpha: 0.80 },
+			{ t: 0.25, hex: "#844210", alpha: 0.80 },
+			{ t: 0.50, hex: "#9E6F0C", alpha: 0.80 },
+			{ t: 0.75, hex: "#C3A21F", alpha: 0.80 },
 			{ t: 1, hex: "#BCBA4B", alpha: 0.80 }
 		]
 	}
