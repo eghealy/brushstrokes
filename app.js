@@ -135,14 +135,24 @@ const PALETTES = {
 			{ t: 1, hex: "#EF4444", alpha: 0.9 }
 		]
 	},
-	portfolioGlow: {
-		label: "Portfolio Glow",
-		background: "#12203A",
-		highlight: "#FFD166",
+	johnSingerSargent: {
+		label: "John Singer Sargent",
+		background: "#180E0A",
+		highlight: "#EFBC51",
 		stops: [
-			{ t: 0, hex: "#B7E6E1", alpha: 0.15 },
-			{ t: 0.5, hex: "#FA935C", alpha: 0.55 },
-			{ t: 1, hex: "#FFD166", alpha: 0.92 }
+			{ t: 0, hex: "#490D0D", alpha: 0.15 },
+			{ t: 0.5, hex: "#A93920", alpha: 0.55 },
+			{ t: 1, hex: "#EFBC51", alpha: 0.92 }
+		]
+	}
+	rembrandt: {
+		label: "Rembrandt",
+		background: "#0F0909",
+		highlight: "#E4D3BC",
+		stops: [
+			{ t: 0, hex: "#3D2E27", alpha: 0.15 },
+			{ t: 0.5, hex: "#817B6B", alpha: 0.55 },
+			{ t: 1, hex: "#D9C39C", alpha: 0.92 }
 		]
 	}
 };
