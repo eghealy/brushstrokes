@@ -144,15 +144,15 @@ function ledgerEntryFor(ledger, text) {
  * and re-themes the whole site automatically — no other code changes.
  */
 const PALETTES = {
-	thermal: {
-		label: "Thermal",
-		background: "#0A2243",
-		highlight: "#FA935C",
+	johnLurie: {
+		label: "John Lurie",
+		background: "#0D2337",
+		highlight: "#A5DB79",
 		stops: [
-			{ t: 0, hex: "#3B82F6", alpha: 0.2 },
-			{ t: 0.33, hex: "#22D399", alpha: 0.4 },
-			{ t: 0.66, hex: "#FACC15", alpha: 0.65 },
-			{ t: 1, hex: "#EF4444", alpha: 0.9 }
+			{ t: 0, hex: "#40B8C2", alpha: 0.80 },
+			{ t: 0.33, hex: "#B84F20", alpha: 0.80 },
+			{ t: 0.66, hex: "#D4BB00", alpha: 0.80 },
+			{ t: 1, hex: "#A5DB79", alpha: 0.80 }
 		]
 	},
 	johnSingerSargent: {
@@ -160,10 +160,70 @@ const PALETTES = {
 		background: "#180E0A",
 		highlight: "#EFBC51",
 		stops: [
-			{ t: 0, hex: "#4B1E09", alpha: 0.15 },
-			{ t: 0.33, hex: "#6C100D", alpha: 0.4 },
-			{ t: 0.66, hex: "#8C5B17", alpha: 0.65 },
-			{ t: 1, hex: "#CFC5A7", alpha: 0.92 }
+			{ t: 0, hex: "#4B1E09", alpha: 0.80},
+			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
+			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
+			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
+		]
+	},
+	noahDavis: {
+		label: "Noah Davis",
+		background: "#463F39",
+		highlight: "#C6AF95",
+		stops: [
+			{ t: 0, hex: "#6D5F60", alpha: 0.80},
+			{ t: 0.33, hex: "#7B7B7E", alpha: 0.80},
+			{ t: 0.66, hex: "#9A8D90", alpha: 0.80},
+			{ t: 1, hex: "#728164", alpha: 0.80}
+		]
+	},
+	davidHockney: {
+		label: "David Hockney",
+		background: "#171413",
+		highlight: "#A9F2EB",
+		stops: [
+			{ t: 0, hex: "#865449", alpha: 0.80},
+			{ t: 0.20, hex: "#AB3153", alpha: 0.80},
+			{ t: 0.40, hex: "#ECABB1", alpha: 0.80},
+			{ t: 0.60, hex: "#669D64", alpha: 0.80},
+			{ t: 0.80, hex: "#5FC0EC", alpha: 0.80},
+			{ t: 1, hex: "#A9F2EB", alpha: 0.80}
+		]
+	},
+	kaySage: {
+		label: "Kay Sage",
+		background: "#0E1C1B",
+		highlight: "#E5DDCF",
+		stops: [
+			{ t: 0, hex: "#48604A", alpha: 0.80},
+			{ t: 0.25, hex: "#99A381", alpha: 0.80},
+			{ t: 0.50, hex: "#CDBC92", alpha: 0.80},
+			{ t: 0.75, hex: "#E5DDCF", alpha: 0.80},
+			{ t: 1, hex: "#E86131", alpha: 0.80}
+		]
+	},
+	royLichtenstein: {
+		label: "Roy Lichtenstein",
+		background: "#000000",
+		highlight: "#F0EFEB",
+		stops: [
+			{ t: 0, hex: "#BA1325", alpha: 0.80},
+			{ t: 0.33, hex: "#ECD1D2", alpha: 0.80},
+			{ t: 0.66, hex: "#F0EFEB", alpha: 0.80},
+			{ t: 1, hex: "#FCE013", alpha: 0.80}
+		]
+	},
+	henriMatisse: {
+		label: "Henri Matisse",
+		background: "#953C26",
+		highlight: "#C5C1B5",
+		stops: [
+			{ t: 0, hex: "#994B35", alpha: 0.80},
+			{ t: 0.20, hex: "#B76F27", alpha: 0.80},
+			{ t: 0.40, hex: "#7097AB", alpha: 0.80},
+			{ t: 0.60, hex: "#A0C1B0", alpha: 0.80},
+			{ t: 0.80, hex: "#C2B585", alpha: 0.80},
+			{ t: 1, hex: "#E77EA5", alpha: 0.80}
 		]
 	},
 	rembrandt: {
@@ -171,10 +231,10 @@ const PALETTES = {
 		background: "#0F0909",
 		highlight: "#E4D3BC",
 		stops: [
-			{ t: 0, hex: "#34240D", alpha: 0.15 },
-			{ t: 0.33, hex: "#6D461D", alpha: 0.4 },
-			{ t: 0.66, hex: "#B57661", alpha: 0.65 },
-			{ t: 1, hex: "#DAC6A0", alpha: 0.92 }
+			{ t: 0, hex: "#34240D", alpha: 0.80},
+			{ t: 0.33, hex: "#6D461D", alpha: 0.80},
+			{ t: 0.66, hex: "#B57661", alpha: 0.80},
+			{ t: 1, hex: "#DAC6A0", alpha: 0.80}
 		]
 	},
 	okeeffe: {
@@ -182,10 +242,10 @@ const PALETTES = {
 		background: "#042C2B",
 		highlight: "#E2B67C",
 		stops: [
-			{ t: 0, hex: "#046754", alpha: 0.15 },
-			{ t: 0.33, hex: "#00A79F", alpha: 0.4 },
-			{ t: 0.66, hex: "#83DBCF", alpha: 0.65 },
-			{ t: 1, hex: "#E7BB81", alpha: 0.92 }
+			{ t: 0, hex: "#046754", alpha: 0.80 },
+			{ t: 0.33, hex: "#00A79F", alpha: 0.80 },
+			{ t: 0.66, hex: "#83DBCF", alpha: 0.80 },
+			{ t: 1, hex: "#E7BB81", alpha: 0.80 }
 		]
 	},
 	vangogh: {
@@ -193,15 +253,15 @@ const PALETTES = {
 		background: "#2C3026",
 		highlight: "#C3A21F",
 		stops: [
-			{ t: 0, hex: "#844210", alpha: 0.15 },
-			{ t: 0.33, hex: "#9E6F0C", alpha: 0.4 },
-			{ t: 0.66, hex: "#C3A21F", alpha: 0.65 },
-			{ t: 1, hex: "#BCBA4B", alpha: 0.92 }
+			{ t: 0, hex: "#844210", alpha: 0.80 },
+			{ t: 0.33, hex: "#9E6F0C", alpha: 0.80 },
+			{ t: 0.66, hex: "#C3A21F", alpha: 0.80 },
+			{ t: 1, hex: "#BCBA4B", alpha: 0.80 }
 		]
 	}
 };
 
-const DEFAULT_PALETTE_KEY = "thermal";
+const DEFAULT_PALETTE_KEY = "johnLurie";
 const DEFAULT_ANALYSIS_MODE = "word";
 let currentPaletteKey = DEFAULT_PALETTE_KEY;
 let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
@@ -303,7 +363,10 @@ function heatColor(t, palette, alphaScale) {
 	const lowerRgb = hexToRgb(lower.hex);
 	const upperRgb = hexToRgb(upper.hex);
 	const rgb = lowerRgb.map((c, idx) => Math.round(c + (upperRgb[idx] - c) * localT));
-	let alpha = lower.alpha + (upper.alpha - lower.alpha) * localT;
+	// A stop with no alpha specified is treated as fully opaque (1).
+	const lowerAlpha = lower.alpha ?? 1;
+	const upperAlpha = upper.alpha ?? 1;
+	let alpha = lowerAlpha + (upperAlpha - lowerAlpha) * localT;
 	if (alphaScale) alpha *= alphaScale;
 
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
@@ -313,7 +376,8 @@ function paletteToCssGradient(palette) {
 	const stops = palette.stops
 		.map((stop) => {
 			const rgb = hexToRgb(stop.hex);
-			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${stop.alpha}) ${stop.t * 100}%`;
+			const alpha = stop.alpha ?? 1;
+			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha}) ${stop.t * 100}%`;
 		})
 		.join(", ");
 	return `linear-gradient(90deg, ${stops})`;
