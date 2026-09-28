@@ -193,7 +193,7 @@ const PALETTES = {
 		background: "#2C3026",
 		highlight: "#C3A21F",
 		stops: [
-			{ t: 0, hex: "#844210", alpha: 0.15 },
+			{ t: 0, hex: "#844210", alpha: 0.95 },
 			{ t: 0.33, hex: "#9E6F0C", alpha: 0.4 },
 			{ t: 0.66, hex: "#C3A21F", alpha: 0.65 },
 			{ t: 1, hex: "#BCBA4B", alpha: 0.92 }
@@ -303,7 +303,10 @@ function heatColor(t, palette, alphaScale) {
 	const lowerRgb = hexToRgb(lower.hex);
 	const upperRgb = hexToRgb(upper.hex);
 	const rgb = lowerRgb.map((c, idx) => Math.round(c + (upperRgb[idx] - c) * localT));
-	let alpha = lower.alpha + (upper.alpha - lower.alpha) * localT;
+	// A stop with no alpha specified is treated as fully opaque (1).
+	const lowerAlpha = lower.alpha ?? 1;
+	const upperAlpha = upper.alpha ?? 1;
+	let alpha = lowerAlpha + (upperAlpha - lowerAlpha) * localT;
 	if (alphaScale) alpha *= alphaScale;
 
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
@@ -313,7 +316,8 @@ function paletteToCssGradient(palette) {
 	const stops = palette.stops
 		.map((stop) => {
 			const rgb = hexToRgb(stop.hex);
-			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${stop.alpha}) ${stop.t * 100}%`;
+			const alpha = stop.alpha ?? 1;
+			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha}) ${stop.t * 100}%`;
 		})
 		.join(", ");
 	return `linear-gradient(90deg, ${stops})`;
