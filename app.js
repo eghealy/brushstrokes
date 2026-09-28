@@ -444,10 +444,219 @@ applyPaletteTheme(PALETTES[currentPaletteKey]);
 populatePaletteSelect();
 initAnalysisToggle();
 
+function setSourceStatus(text) {
+	document.getElementById("mode-label").textContent = text;
+}
+
 document.getElementById("load-demo-btn").addEventListener("click", () => {
 	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
 	const wordLedger = computeWordLedger(MOCK_REVISIONS);
 	renderHeatmap(sentenceLedger, wordLedger);
-	document.getElementById("mode-label").textContent =
-		`Demo document — ${MOCK_REVISIONS.length} revisions`;
+	setSourceStatus(`Demo document — ${MOCK_REVISIONS.length} revisions`);
 });
+
+/*
+ * Google Doc integration.
+ *
+ * Everything below runs entirely in this browser tab: it exchanges an
+ * OAuth token directly with Google, then calls the Drive API directly
+ * from here to list a document's revision history and read the
+ * plain-text content of each revision. There is no server of ours in
+ * this path, nothing is logged, and no AI ever sees this text — it goes
+ * straight from Google's API into the same diffing pipeline used for
+ * the demo data above (computeSentenceLedger / computeWordLedger).
+ */
+const GOOGLE_CLIENT_ID = "239184223664-fptfs2hebu60crv5tkk60mjmcjmci416.apps.googleusercontent.com";
+const GOOGLE_API_KEY = "AIzaSyAwUFUxB0Cu3lLQQ74fa-cGqWS9yEzLRcw";
+
+// drive.file is deliberately narrow: it only grants access to files the
+// user explicitly selects through the Google Picker below, not to
+// everything in their Drive. Selecting a doc via Picker is what actually
+// grants this app permission to read that one file — there's no way to
+// grant access to an arbitrary file just by pasting its URL under this
+// scope, which is the point.
+const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+
+// Google Docs can accumulate hundreds of autosave revisions. Rather than
+// fetching (and diffing) every single one, sample down to this many,
+// evenly spaced across the full history, so the heatmap still reflects
+// the whole arc of the document without hammering the API.
+const MAX_REVISIONS_TO_FETCH = 40;
+
+let googleTokenClient = null;
+let googleAccessToken = null;
+let pickerLoaded = false;
+
+// Evenly samples down to `max` items, always keeping the first and last
+// so the earliest and most recent drafts are included either way.
+function sampleEvenly(items, max) {
+	if (items.length <= max) return items;
+	const lastIndex = items.length - 1;
+	const picked = [];
+	for (let i = 0; i < max; i++) {
+		picked.push(items[Math.round((i * lastIndex) / (max - 1))]);
+	}
+	return [...new Set(picked)];
+}
+
+async function driveApiFetch(url) {
+	const response = await fetch(url, {
+		headers: { Authorization: `Bearer ${googleAccessToken}` }
+	});
+	if (!response.ok) {
+		const body = await response.text();
+		throw new Error(`Drive API error ${response.status}: ${body}`);
+	}
+	return response;
+}
+
+async function fetchDocTitle(fileId) {
+	const response = await driveApiFetch(
+		`https://www.googleapis.com/drive/v3/files/${fileId}?fields=name`
+	);
+	const data = await response.json();
+	return data.name;
+}
+
+async function fetchRevisionIds(fileId) {
+	let ids = [];
+	let pageToken = "";
+	do {
+		const url =
+			`https://www.googleapis.com/drive/v3/files/${fileId}/revisions` +
+			`?fields=nextPageToken,revisions(id)&pageSize=1000` +
+			(pageToken ? `&pageToken=${pageToken}` : "");
+		const response = await driveApiFetch(url);
+		const data = await response.json();
+		ids = ids.concat((data.revisions || []).map((r) => r.id));
+		pageToken = data.nextPageToken || "";
+	} while (pageToken);
+	return ids;
+}
+
+async function fetchRevisionText(fileId, revisionId) {
+	// Drive API v3 doesn't support alt=media directly on a Google Doc
+	// revision (that only works for raw binary files). For Workspace
+	// documents you first ask for the revision's exportLinks, then fetch
+	// the plain-text URL it hands back — same auth header, second request.
+	const metaResponse = await driveApiFetch(
+		`https://www.googleapis.com/drive/v3/files/${fileId}/revisions/${revisionId}?fields=exportLinks`
+	);
+	const meta = await metaResponse.json();
+	const exportUrl = meta.exportLinks && meta.exportLinks["text/plain"];
+	if (!exportUrl) {
+		throw new Error(`Revision ${revisionId} has no plain-text export available`);
+	}
+	const contentResponse = await driveApiFetch(exportUrl);
+	return contentResponse.text();
+}
+
+async function loadGoogleDoc(fileId) {
+	setSourceStatus("Fetching revision history…");
+	const [title, allRevisionIds] = await Promise.all([
+		fetchDocTitle(fileId),
+		fetchRevisionIds(fileId)
+	]);
+
+	if (allRevisionIds.length === 0) {
+		setSourceStatus("No revision history found for this document.");
+		return;
+	}
+
+	const sampledIds = sampleEvenly(allRevisionIds, MAX_REVISIONS_TO_FETCH);
+	const texts = [];
+	for (let i = 0; i < sampledIds.length; i++) {
+		setSourceStatus(`Fetching revision ${i + 1} of ${sampledIds.length}…`);
+		texts.push(await fetchRevisionText(fileId, sampledIds[i]));
+	}
+
+	const sentenceLedger = computeSentenceLedger(texts);
+	const wordLedger = computeWordLedger(texts);
+	renderHeatmap(sentenceLedger, wordLedger);
+	setSourceStatus(`"${title}" — ${sampledIds.length} of ${allRevisionIds.length} revisions`);
+}
+
+function waitFor(isReady, onReady, onFail, attemptsLeft = 20) {
+	if (isReady()) {
+		onReady();
+		return;
+	}
+	if (attemptsLeft <= 0) {
+		onFail();
+		return;
+	}
+	setTimeout(() => waitFor(isReady, onReady, onFail, attemptsLeft - 1), 150);
+}
+
+function disableConnectButton(reason) {
+	const connectBtn = document.getElementById("connect-doc-btn");
+	connectBtn.disabled = true;
+	connectBtn.title = reason;
+}
+
+function openDocPicker() {
+	const picker = new google.picker.PickerBuilder()
+		.setOAuthToken(googleAccessToken)
+		.setDeveloperKey(GOOGLE_API_KEY)
+		.addView(
+			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS).setMimeTypes(
+				"application/vnd.google-apps.document"
+			)
+		)
+		.setCallback((data) => {
+			if (data.action !== google.picker.Action.PICKED) return;
+			const fileId = data.docs[0].id;
+			loadGoogleDoc(fileId).catch((err) => {
+				console.error("Brushstrokes: failed to load Google Doc", err);
+				setSourceStatus(`Couldn't load that document: ${err.message}`);
+			});
+		})
+		.build();
+	picker.setVisible(true);
+}
+
+function initGoogleAuth() {
+	const misconfigured = GOOGLE_CLIENT_ID.startsWith("REPLACE_WITH") || GOOGLE_API_KEY.startsWith("REPLACE_WITH");
+	if (misconfigured) {
+		disableConnectButton("Google sign-in isn't configured yet");
+		return;
+	}
+
+	googleTokenClient = google.accounts.oauth2.initTokenClient({
+		client_id: GOOGLE_CLIENT_ID,
+		scope: GOOGLE_DRIVE_SCOPE,
+		callback: (response) => {
+			if (response.error) {
+				setSourceStatus(`Google sign-in failed: ${response.error}`);
+				return;
+			}
+			googleAccessToken = response.access_token;
+			openDocPicker();
+		}
+	});
+}
+
+document.getElementById("connect-doc-btn").addEventListener("click", () => {
+	if (!googleTokenClient) {
+		setSourceStatus("Google sign-in isn't set up yet.");
+		return;
+	}
+	if (!pickerLoaded) {
+		setSourceStatus("Google Picker isn't ready yet — try again in a moment.");
+		return;
+	}
+	setSourceStatus("Requesting access…");
+	googleTokenClient.requestAccessToken();
+});
+
+waitFor(
+	() => window.google && window.google.accounts && window.google.accounts.oauth2,
+	initGoogleAuth,
+	() => disableConnectButton("Google sign-in failed to load — try refreshing")
+);
+
+waitFor(
+	() => window.gapi && window.gapi.load,
+	() => gapi.load("picker", () => { pickerLoaded = true; }),
+	() => disableConnectButton("Google Picker failed to load — try refreshing")
+);
