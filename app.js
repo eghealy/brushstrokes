@@ -342,28 +342,35 @@ function applyPaletteTheme(palette) {
 	const background = palette.background || "#0A2243";
 	const highlight = palette.highlight || "#FA935C";
 
-	// Decide lighten-vs-darken by which direction actually reads better,
-	// not by an arbitrary luminance cutoff — a mid-brightness saturated
-	// color (teal, gold, taupe) can easily sit on the "dark" side of 0.5
-	// while still being too bright to lighten further and stay readable.
-	// Checking contrast at the text-level intensity (the most extreme,
-	// most contrast-critical derived shade) is what actually matters.
+	// Decide lighten-vs-darken TEXT color by which direction actually
+	// reads better, not by an arbitrary luminance cutoff — a mid-brightness
+	// saturated color (teal, gold, taupe) can easily sit on the "dark" side
+	// of 0.5 while still being too bright to lighten further and stay
+	// readable. Checking contrast at the text-level intensity (the most
+	// extreme, most contrast-critical derived shade) is what actually
+	// matters.
 	const backgroundLuminance = relativeLuminance(background);
 	const lightenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(lightenHex(background, 0.86)));
 	const darkenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(darkenHex(background, 0.86)));
-	const adjust = darkenedContrast > lightenedContrast ? darkenHex : lightenHex;
+	const textAdjust = darkenedContrast > lightenedContrast ? darkenHex : lightenHex;
 
 	const theme = {
 		"--color-background": background,
-		"--color-panel-bg": palette.panelBackground || adjust(background, 0.06),
-		"--color-control-bg": palette.controlBackground || adjust(background, 0.12),
-		"--color-border": palette.border || adjust(background, 0.22),
-		"--color-text": palette.textPrimary || adjust(background, 0.86),
-		"--color-text-muted": palette.textMuted || adjust(background, 0.62),
-		"--color-text-faint": palette.textFaint || adjust(background, 0.42),
+		// Cards/surfaces always lighten from the page background — they
+		// need to read as a distinct "elevated" layer regardless of which
+		// direction the text picks. A palette whose text reads better
+		// darkened (a bright/saturated background) would otherwise get
+		// panels *darker* than the page itself, which barely registers
+		// as a separate surface at all.
+		"--color-panel-bg": palette.panelBackground || lightenHex(background, 0.06),
+		"--color-control-bg": palette.controlBackground || lightenHex(background, 0.12),
+		"--color-border": palette.border || lightenHex(background, 0.22),
+		"--color-text": palette.textPrimary || textAdjust(background, 0.86),
+		"--color-text-muted": palette.textMuted || textAdjust(background, 0.62),
+		"--color-text-faint": palette.textFaint || textAdjust(background, 0.42),
 		"--color-highlight": highlight,
 		"--color-highlight-text": palette.highlightText || pickContrastText(highlight),
-		"--color-highlight-hover": palette.highlightHover || adjust(highlight, 0.15)
+		"--color-highlight-hover": palette.highlightHover || textAdjust(highlight, 0.15)
 	};
 
 	const root = document.documentElement.style;
