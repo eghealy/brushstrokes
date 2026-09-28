@@ -121,7 +121,7 @@ button.btn:disabled {
 	font-weight: 600;
 }
 
-.btn-primary:hover:not(:disabled) {
+button.btn-primary:hover:not(:disabled) {
 	background-color: var(--color-highlight-hover);
 	border-color: var(--color-highlight-hover);
 }
@@ -213,8 +213,6 @@ button.btn:disabled {
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	padding: 1.5rem 1.75rem;
-	max-height: 22rem;
-	overflow-y: auto;
 }
 
 .footnote-panel {
