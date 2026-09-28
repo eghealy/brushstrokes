@@ -217,7 +217,8 @@ button.btn:disabled {
 	overflow-y: auto;
 }
 
-.footnote-panel {
+.footnote-panel,
+.graphic-panel {
 	margin-top: 1.25rem;
 	margin-bottom: 2rem;
 	padding: 1.25rem 1.5rem;
@@ -225,6 +226,25 @@ button.btn:disabled {
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	min-height: 6rem;
+}
+
+.frame-wrap {
+	display: flex;
+	justify-content: center;
+}
+
+.frame-graphic {
+	width: 100%;
+	max-width: 20rem;
+	height: auto;
+	display: block;
+	border-radius: 0.3em;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	transition: opacity 0.25s ease;
+}
+
+.footnote-panel .btn {
+	margin-top: 1rem;
 }
 
 .footnote-label {

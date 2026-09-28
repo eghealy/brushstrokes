@@ -376,7 +376,7 @@ function applyPaletteTheme(palette) {
 	root.setProperty("--select-caret", `url('${caretSvg}')`);
 }
 
-function heatColor(t, palette, alphaScale) {
+function heatColorComponents(t, palette, alphaScale) {
 	const stops = palette.stops;
 	let lower = stops[0];
 	let upper = stops[stops.length - 1];
@@ -399,6 +399,11 @@ function heatColor(t, palette, alphaScale) {
 	let alpha = lowerAlpha + (upperAlpha - lowerAlpha) * localT;
 	if (alphaScale) alpha *= alphaScale;
 
+	return { rgb, alpha };
+}
+
+function heatColor(t, palette, alphaScale) {
+	const { rgb, alpha } = heatColorComponents(t, palette, alphaScale);
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
 }
 
@@ -575,7 +580,70 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
 	document.getElementById("legend").hidden = false;
+
+	renderFrameGraphic(wordLedger, palette);
 }
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// A poster-sized (8.5x11in, portrait) gradient distilled from every
+// word's heat color, top to bottom in reading order — always built from
+// word-level granularity regardless of the current analysis mode, since
+// that gives the richest, smoothest gradient. Capped to a reasonable
+// stop count so the exported SVG stays a sane file size even for long
+// documents.
+const MAX_FRAME_GRADIENT_STOPS = 300;
+
+function renderFrameGraphic(wordLedger, palette) {
+	const gradient = document.getElementById("frame-gradient");
+	const downloadBtn = document.getElementById("download-svg-btn");
+
+	if (!wordLedger || wordLedger.length === 0) {
+		gradient.innerHTML = "";
+		downloadBtn.disabled = true;
+		downloadBtn.title = "Load a document first";
+		return;
+	}
+
+	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
+	const sampled = sampleEvenly(wordLedger, MAX_FRAME_GRADIENT_STOPS);
+
+	gradient.innerHTML = "";
+	sampled.forEach((entry, idx) => {
+		const normalized = maxCount > 1 ? (entry.count - 1) / (maxCount - 1) : 0;
+		const { rgb, alpha } = heatColorComponents(normalized, palette);
+		const offset = sampled.length > 1 ? (idx / (sampled.length - 1)) * 100 : 0;
+
+		const stop = document.createElementNS(SVG_NS, "stop");
+		stop.setAttribute("offset", `${offset}%`);
+		stop.setAttribute("stop-color", `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+		stop.setAttribute("stop-opacity", alpha.toFixed(2));
+		gradient.appendChild(stop);
+	});
+
+	downloadBtn.disabled = false;
+	downloadBtn.title = "";
+}
+
+function downloadFrameGraphic() {
+	const svg = document.getElementById("frame-graphic");
+	const clone = svg.cloneNode(true);
+	clone.setAttribute("width", "8.5in");
+	clone.setAttribute("height", "11in");
+
+	const serialized =
+		`<?xml version="1.0" encoding="UTF-8"?>\n` + new XMLSerializer().serializeToString(clone);
+	const blob = new Blob([serialized], { type: "image/svg+xml" });
+	const url = URL.createObjectURL(blob);
+
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = "brushstrokes-frame.svg";
+	link.click();
+	URL.revokeObjectURL(url);
+}
+
+document.getElementById("download-svg-btn").addEventListener("click", downloadFrameGraphic);
 
 // The heatmap's word/sentence spans are rebuilt from scratch on every
 // render (not just recolored in place), so a plain CSS transition on
@@ -589,12 +657,15 @@ const PALETTE_FADE_MS = 250;
 function fadeToRerenderedHeatmap() {
 	const output = document.getElementById("doc-output");
 	const legendGradient = document.getElementById("legend-gradient");
+	const frameGraphic = document.getElementById("frame-graphic");
 	output.style.opacity = "0";
 	legendGradient.style.opacity = "0";
+	frameGraphic.style.opacity = "0";
 	setTimeout(() => {
 		renderHeatmap(currentSentenceLedger, currentWordLedger);
 		output.style.opacity = "1";
 		legendGradient.style.opacity = "1";
+		frameGraphic.style.opacity = "1";
 	}, PALETTE_FADE_MS);
 }
 
