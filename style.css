@@ -221,7 +221,7 @@ button.btn-primary:hover:not(:disabled) {
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: var(--color-text-faint);
-	margin-bottom: 0.75rem;
+	margin-top: 0.75rem;
 }
 
 .frame-graphic {
