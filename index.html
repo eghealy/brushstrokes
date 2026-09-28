@@ -58,21 +58,22 @@
 			</div>
 		</section>
 
-		<section class="graphic-panel">
-			<span class="footnote-label">Frame</span>
-			<div class="frame-wrap">
-				<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A gradient poster built from every heat color in the document, top to bottom in reading order">
-					<defs>
-						<linearGradient id="frame-gradient" x1="0" y1="0" x2="0" y2="1"></linearGradient>
-					</defs>
-					<rect width="850" height="1100" fill="url(#frame-gradient)"></rect>
-				</svg>
-			</div>
-		</section>
+		<div class="frame-standalone">
+			<span class="frame-label">Frame &mdash; most-edited page</span>
+			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of a single document page, one cell per word, colored by how much that word was edited and positioned to match where it falls on the page">
+				<defs>
+					<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
+						<feGaussianBlur stdDeviation="10"></feGaussianBlur>
+					</filter>
+				</defs>
+				<rect id="frame-bg" width="850" height="1100" fill="#0a2243"></rect>
+				<g id="frame-pixels" filter="url(#frame-blur)"></g>
+			</svg>
+		</div>
 
 		<section class="footnote-panel">
 			<span class="footnote-label">Export</span>
-			<p class="footnote-placeholder">An 8.5&times;11 gradient poster distilled from every heat color in the document above, in reading order.</p>
+			<p class="footnote-placeholder">The most-edited page above, rendered as an 8.5&times;11 gradient poster.</p>
 			<button type="button" id="download-svg-btn" class="btn btn-primary" disabled title="Load a document first">Download as SVG</button>
 		</section>
 

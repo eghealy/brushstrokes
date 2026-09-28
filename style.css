@@ -217,8 +217,7 @@ button.btn:disabled {
 	overflow-y: auto;
 }
 
-.footnote-panel,
-.graphic-panel {
+.footnote-panel {
 	margin-top: 1.25rem;
 	margin-bottom: 2rem;
 	padding: 1.25rem 1.5rem;
@@ -228,14 +227,26 @@ button.btn:disabled {
 	min-height: 6rem;
 }
 
-.frame-wrap {
+.frame-standalone {
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	margin: 1.25rem 0 2rem;
+}
+
+.frame-label {
+	display: block;
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--color-text-faint);
+	margin-bottom: 0.75rem;
 }
 
 .frame-graphic {
 	width: 100%;
-	max-width: 20rem;
+	max-width: 30rem;
 	height: auto;
 	display: block;
 	border-radius: 0.3em;
