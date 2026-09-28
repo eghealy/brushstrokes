@@ -593,39 +593,98 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-// A poster-sized (8.5x11in, portrait) gradient distilled from every
-// word's heat color, top to bottom in reading order — always built from
-// word-level granularity regardless of the current analysis mode, since
-// that gives the richest, smoothest gradient. Capped to a reasonable
-// stop count so the exported SVG stays a sane file size even for long
-// documents.
-const MAX_FRAME_GRADIENT_STOPS = 300;
+// The graphic shows a fixed-size block of words — roughly enough to
+// fill the whole 8.5x11 canvas at a readable pixel size — rather than a
+// realistic full page, so cells stay big regardless of document length.
+const WORD_WINDOW_SIZE = 250;
+const CHARS_PER_LINE = 90;
+const PAGE_WIDTH = 850;
+const PAGE_HEIGHT = 1100;
+const CHAR_WIDTH = PAGE_WIDTH / CHARS_PER_LINE;
 
+// Finds the WORD_WINDOW_SIZE-word block (by document order) with the
+// highest total edit count, via an O(n) sliding-window sum. Shorter
+// documents just use every word they have.
+function findMostChangedWordBlock(wordLedger) {
+	if (wordLedger.length <= WORD_WINDOW_SIZE) return wordLedger;
+
+	let windowSum = 0;
+	for (let i = 0; i < WORD_WINDOW_SIZE; i++) windowSum += wordLedger[i].count;
+
+	let bestSum = windowSum;
+	let bestStart = 0;
+
+	for (let start = 1; start <= wordLedger.length - WORD_WINDOW_SIZE; start++) {
+		windowSum += wordLedger[start + WORD_WINDOW_SIZE - 1].count - wordLedger[start - 1].count;
+		if (windowSum > bestSum) {
+			bestSum = windowSum;
+			bestStart = start;
+		}
+	}
+
+	return wordLedger.slice(bestStart, bestStart + WORD_WINDOW_SIZE);
+}
+
+// Word-wraps a block of words at CHARS_PER_LINE (the same greedy wrap a
+// text editor uses) to place each at a (line, column) position, and
+// reports how many lines the block took — used to derive a line height
+// that makes however many lines this specific block needs fill the
+// page exactly, rather than assuming a fixed line count.
+function layoutWordBlock(words) {
+	let line = 0;
+	let col = 0;
+	const positioned = words.map((entry) => {
+		const wordLen = entry.text.length;
+		const withSpace = col > 0 ? wordLen + 1 : wordLen;
+		if (col > 0 && col + withSpace > CHARS_PER_LINE) {
+			line++;
+			col = 0;
+		}
+		const startCol = col > 0 ? col + 1 : col;
+		col = startCol + wordLen;
+		return { entry, line, startCol, wordLen };
+	});
+
+	return { positioned, lineCount: line + 1 };
+}
+
+// A poster-sized (8.5x11in, portrait) pixel mosaic of the most heavily
+// edited ~250-word block in the document — one rect per word, colored
+// by that word's heat and positioned to match its real (line, column)
+// within the block, then blurred (via an SVG filter) so neighboring
+// cells blend into each other instead of reading as hard-edged tiles.
 function renderFrameGraphic(wordLedger, palette) {
-	const gradient = document.getElementById("frame-gradient");
+	const pixels = document.getElementById("frame-pixels");
+	const bg = document.getElementById("frame-bg");
 	const downloadBtn = document.getElementById("download-svg-btn");
 
 	if (!wordLedger || wordLedger.length === 0) {
-		gradient.innerHTML = "";
+		pixels.innerHTML = "";
 		downloadBtn.disabled = true;
 		downloadBtn.title = "Load a document first";
 		return;
 	}
 
-	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
-	const sampled = sampleEvenly(wordLedger, MAX_FRAME_GRADIENT_STOPS);
+	bg.setAttribute("fill", palette.background || "#0A2243");
 
-	gradient.innerHTML = "";
-	sampled.forEach((entry, idx) => {
+	const block = findMostChangedWordBlock(wordLedger);
+	const { positioned, lineCount } = layoutWordBlock(block);
+	const lineHeight = PAGE_HEIGHT / lineCount;
+	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
+
+	pixels.innerHTML = "";
+	positioned.forEach(({ entry, line, startCol, wordLen }) => {
 		const normalized = maxCount > 1 ? (entry.count - 1) / (maxCount - 1) : 0;
 		const { rgb, alpha } = heatColorComponents(normalized, palette);
-		const offset = sampled.length > 1 ? (idx / (sampled.length - 1)) * 100 : 0;
 
-		const stop = document.createElementNS(SVG_NS, "stop");
-		stop.setAttribute("offset", `${offset}%`);
-		stop.setAttribute("stop-color", `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
-		stop.setAttribute("stop-opacity", alpha.toFixed(2));
-		gradient.appendChild(stop);
+		const rect = document.createElementNS(SVG_NS, "rect");
+		rect.setAttribute("x", (startCol * CHAR_WIDTH).toFixed(2));
+		rect.setAttribute("y", (line * lineHeight).toFixed(2));
+		rect.setAttribute("width", (wordLen * CHAR_WIDTH).toFixed(2));
+		rect.setAttribute("height", lineHeight.toFixed(2));
+		rect.setAttribute("fill", `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+		rect.setAttribute("fill-opacity", alpha.toFixed(2));
+		pixels.appendChild(rect);
 	});
 
 	downloadBtn.disabled = false;
