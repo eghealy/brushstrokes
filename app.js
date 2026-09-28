@@ -293,6 +293,14 @@ function lightenHex(hex, amount) {
 	return rgbToHex(mix(r), mix(g), mix(b));
 }
 
+// Mixes a hex color toward black by `amount` (0-1) — the mirror of
+// lightenHex, used for light-background palettes.
+function darkenHex(hex, amount) {
+	const [r, g, b] = hexToRgb(hex);
+	const mix = (c) => c * (1 - amount);
+	return rgbToHex(mix(r), mix(g), mix(b));
+}
+
 // WCAG relative luminance, used to auto-pick a readable text color for
 // whatever sits on top of a palette's highlight color.
 function relativeLuminance(hex) {
@@ -323,22 +331,39 @@ function pickContrastText(hex) {
  * overrides it. This is intentionally separate from `palette.stops`
  * (the heat gradient) — the background color is UI chrome and never
  * feeds into the edit-heat visualization.
+ *
+ * Derived colors mirror around the background's own brightness: dark
+ * backgrounds get progressively lighter panels/controls/borders/text
+ * (the original scheme), while light backgrounds get progressively
+ * darker ones instead, so text and surfaces stay high-contrast either
+ * way rather than always lightening toward white.
  */
 function applyPaletteTheme(palette) {
 	const background = palette.background || "#0A2243";
 	const highlight = palette.highlight || "#FA935C";
 
+	// Decide lighten-vs-darken by which direction actually reads better,
+	// not by an arbitrary luminance cutoff — a mid-brightness saturated
+	// color (teal, gold, taupe) can easily sit on the "dark" side of 0.5
+	// while still being too bright to lighten further and stay readable.
+	// Checking contrast at the text-level intensity (the most extreme,
+	// most contrast-critical derived shade) is what actually matters.
+	const backgroundLuminance = relativeLuminance(background);
+	const lightenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(lightenHex(background, 0.86)));
+	const darkenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(darkenHex(background, 0.86)));
+	const adjust = darkenedContrast > lightenedContrast ? darkenHex : lightenHex;
+
 	const theme = {
 		"--color-background": background,
-		"--color-panel-bg": palette.panelBackground || lightenHex(background, 0.06),
-		"--color-control-bg": palette.controlBackground || lightenHex(background, 0.12),
-		"--color-border": palette.border || lightenHex(background, 0.22),
-		"--color-text": palette.textPrimary || lightenHex(background, 0.86),
-		"--color-text-muted": palette.textMuted || lightenHex(background, 0.62),
-		"--color-text-faint": palette.textFaint || lightenHex(background, 0.42),
+		"--color-panel-bg": palette.panelBackground || adjust(background, 0.06),
+		"--color-control-bg": palette.controlBackground || adjust(background, 0.12),
+		"--color-border": palette.border || adjust(background, 0.22),
+		"--color-text": palette.textPrimary || adjust(background, 0.86),
+		"--color-text-muted": palette.textMuted || adjust(background, 0.62),
+		"--color-text-faint": palette.textFaint || adjust(background, 0.42),
 		"--color-highlight": highlight,
 		"--color-highlight-text": palette.highlightText || pickContrastText(highlight),
-		"--color-highlight-hover": palette.highlightHover || lightenHex(highlight, 0.15)
+		"--color-highlight-hover": palette.highlightHover || adjust(highlight, 0.15)
 	};
 
 	const root = document.documentElement.style;
