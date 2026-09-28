@@ -577,6 +577,27 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 	document.getElementById("legend").hidden = false;
 }
 
+// The heatmap's word/sentence spans are rebuilt from scratch on every
+// render (not just recolored in place), so a plain CSS transition on
+// them can't cross-fade between old and new colors. Instead, fade the
+// container out, swap in the freshly-rendered content while invisible,
+// then fade back in — paired with the CSS custom property transitions
+// in style.css, which handle the rest of the page (toolbar, panels,
+// buttons, text) smoothly on their own.
+const PALETTE_FADE_MS = 250;
+
+function fadeToRerenderedHeatmap() {
+	const output = document.getElementById("doc-output");
+	const legendGradient = document.getElementById("legend-gradient");
+	output.style.opacity = "0";
+	legendGradient.style.opacity = "0";
+	setTimeout(() => {
+		renderHeatmap(currentSentenceLedger, currentWordLedger);
+		output.style.opacity = "1";
+		legendGradient.style.opacity = "1";
+	}, PALETTE_FADE_MS);
+}
+
 function populatePaletteSelect() {
 	const select = document.getElementById("palette-select");
 	Object.entries(PALETTES).forEach(([key, palette]) => {
@@ -591,7 +612,7 @@ function populatePaletteSelect() {
 		currentPaletteKey = select.value;
 		applyPaletteTheme(PALETTES[currentPaletteKey]);
 		if (currentSentenceLedger && currentWordLedger) {
-			renderHeatmap(currentSentenceLedger, currentWordLedger);
+			fadeToRerenderedHeatmap();
 		}
 	});
 }

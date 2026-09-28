@@ -17,6 +17,18 @@
 	box-sizing: border-box;
 }
 
+/*
+ * Cross-fades palette switches: anything whose color comes from a
+ * --color-* custom property (background, panels, controls, borders,
+ * text) transitions smoothly when applyPaletteTheme() updates those
+ * variables. More specific transitions declared further down (e.g. on
+ * button hover states) override this, which is intentional — those
+ * stay snappy for interaction feedback.
+ */
+*, *::before, *::after {
+	transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
 body {
 	margin: 0;
 	font-family: "Source Sans 3", sans-serif;
@@ -194,6 +206,7 @@ button.btn:disabled {
 	width: 8rem;
 	height: 0.6rem;
 	border-radius: 999px;
+	transition: opacity 0.25s ease;
 }
 
 .canvas {
@@ -253,6 +266,7 @@ button.btn:disabled {
 	line-height: 1.9;
 	font-size: 1.05rem;
 	white-space: pre-wrap;
+	transition: opacity 0.25s ease;
 }
 
 .doc-output .sentence {
