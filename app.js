@@ -145,7 +145,7 @@ function ledgerEntryFor(ledger, text) {
  */
 const PALETTES = {
 	thermal: {
-		label: "Thermal",
+		label: "Default",
 		background: "#0A2243",
 		highlight: "#FA935C",
 		stops: [
@@ -160,10 +160,10 @@ const PALETTES = {
 		background: "#180E0A",
 		highlight: "#EFBC51",
 		stops: [
-			{ t: 0, hex: "#4B1E09", alpha: 0.15 },
-			{ t: 0.33, hex: "#6C100D", alpha: 0.4 },
-			{ t: 0.66, hex: "#8C5B17", alpha: 0.65 },
-			{ t: 1, hex: "#CFC5A7", alpha: 0.92 }
+			{ t: 0, hex: "#4B1E09", alpha: 0.80},
+			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
+			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
+			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
 		]
 	},
 	rembrandt: {
@@ -171,10 +171,10 @@ const PALETTES = {
 		background: "#0F0909",
 		highlight: "#E4D3BC",
 		stops: [
-			{ t: 0, hex: "#34240D", alpha: 0.15 },
-			{ t: 0.33, hex: "#6D461D", alpha: 0.4 },
-			{ t: 0.66, hex: "#B57661", alpha: 0.65 },
-			{ t: 1, hex: "#DAC6A0", alpha: 0.92 }
+			{ t: 0, hex: "#34240D", alpha: 0.80},
+			{ t: 0.33, hex: "#6D461D", alpha: 0.80},
+			{ t: 0.66, hex: "#B57661", alpha: 0.80},
+			{ t: 1, hex: "#DAC6A0", alpha: 0.80}
 		]
 	},
 	okeeffe: {
@@ -182,10 +182,10 @@ const PALETTES = {
 		background: "#042C2B",
 		highlight: "#E2B67C",
 		stops: [
-			{ t: 0, hex: "#046754", alpha: 0.15 },
-			{ t: 0.33, hex: "#00A79F", alpha: 0.4 },
-			{ t: 0.66, hex: "#83DBCF", alpha: 0.65 },
-			{ t: 1, hex: "#E7BB81", alpha: 0.92 }
+			{ t: 0, hex: "#046754", alpha: 0.80 },
+			{ t: 0.33, hex: "#00A79F", alpha: 0.80 },
+			{ t: 0.66, hex: "#83DBCF", alpha: 0.80 },
+			{ t: 1, hex: "#E7BB81", alpha: 0.80 }
 		]
 	},
 	vangogh: {
@@ -193,10 +193,10 @@ const PALETTES = {
 		background: "#2C3026",
 		highlight: "#C3A21F",
 		stops: [
-			{ t: 0, hex: "#844210", alpha: 0.95 },
-			{ t: 0.33, hex: "#9E6F0C", alpha: 0.4 },
-			{ t: 0.66, hex: "#C3A21F", alpha: 0.65 },
-			{ t: 1, hex: "#BCBA4B", alpha: 0.92 }
+			{ t: 0, hex: "#844210", alpha: 0.80 },
+			{ t: 0.33, hex: "#9E6F0C", alpha: 0.80 },
+			{ t: 0.66, hex: "#C3A21F", alpha: 0.80 },
+			{ t: 1, hex: "#BCBA4B", alpha: 0.80 }
 		]
 	}
 };
