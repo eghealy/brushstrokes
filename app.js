@@ -293,6 +293,14 @@ function lightenHex(hex, amount) {
 	return rgbToHex(mix(r), mix(g), mix(b));
 }
 
+// Mixes a hex color toward black by `amount` (0-1) — the mirror of
+// lightenHex, used for light-background palettes.
+function darkenHex(hex, amount) {
+	const [r, g, b] = hexToRgb(hex);
+	const mix = (c) => c * (1 - amount);
+	return rgbToHex(mix(r), mix(g), mix(b));
+}
+
 // WCAG relative luminance, used to auto-pick a readable text color for
 // whatever sits on top of a palette's highlight color.
 function relativeLuminance(hex) {
@@ -323,22 +331,46 @@ function pickContrastText(hex) {
  * overrides it. This is intentionally separate from `palette.stops`
  * (the heat gradient) — the background color is UI chrome and never
  * feeds into the edit-heat visualization.
+ *
+ * Derived colors mirror around the background's own brightness: dark
+ * backgrounds get progressively lighter panels/controls/borders/text
+ * (the original scheme), while light backgrounds get progressively
+ * darker ones instead, so text and surfaces stay high-contrast either
+ * way rather than always lightening toward white.
  */
 function applyPaletteTheme(palette) {
 	const background = palette.background || "#0A2243";
 	const highlight = palette.highlight || "#FA935C";
 
+	// Decide lighten-vs-darken TEXT color by which direction actually
+	// reads better, not by an arbitrary luminance cutoff — a mid-brightness
+	// saturated color (teal, gold, taupe) can easily sit on the "dark" side
+	// of 0.5 while still being too bright to lighten further and stay
+	// readable. Checking contrast at the text-level intensity (the most
+	// extreme, most contrast-critical derived shade) is what actually
+	// matters.
+	const backgroundLuminance = relativeLuminance(background);
+	const lightenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(lightenHex(background, 0.86)));
+	const darkenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(darkenHex(background, 0.86)));
+	const textAdjust = darkenedContrast > lightenedContrast ? darkenHex : lightenHex;
+
 	const theme = {
 		"--color-background": background,
+		// Cards/surfaces always lighten from the page background — they
+		// need to read as a distinct "elevated" layer regardless of which
+		// direction the text picks. A palette whose text reads better
+		// darkened (a bright/saturated background) would otherwise get
+		// panels *darker* than the page itself, which barely registers
+		// as a separate surface at all.
 		"--color-panel-bg": palette.panelBackground || lightenHex(background, 0.06),
 		"--color-control-bg": palette.controlBackground || lightenHex(background, 0.12),
 		"--color-border": palette.border || lightenHex(background, 0.22),
-		"--color-text": palette.textPrimary || lightenHex(background, 0.86),
-		"--color-text-muted": palette.textMuted || lightenHex(background, 0.62),
-		"--color-text-faint": palette.textFaint || lightenHex(background, 0.42),
+		"--color-text": palette.textPrimary || textAdjust(background, 0.86),
+		"--color-text-muted": palette.textMuted || textAdjust(background, 0.62),
+		"--color-text-faint": palette.textFaint || textAdjust(background, 0.42),
 		"--color-highlight": highlight,
 		"--color-highlight-text": palette.highlightText || pickContrastText(highlight),
-		"--color-highlight-hover": palette.highlightHover || lightenHex(highlight, 0.15)
+		"--color-highlight-hover": palette.highlightHover || textAdjust(highlight, 0.15)
 	};
 
 	const root = document.documentElement.style;
@@ -351,7 +383,7 @@ function applyPaletteTheme(palette) {
 	root.setProperty("--select-caret", `url('${caretSvg}')`);
 }
 
-function heatColor(t, palette, alphaScale) {
+function heatColorComponents(t, palette, alphaScale) {
 	const stops = palette.stops;
 	let lower = stops[0];
 	let upper = stops[stops.length - 1];
@@ -374,6 +406,11 @@ function heatColor(t, palette, alphaScale) {
 	let alpha = lowerAlpha + (upperAlpha - lowerAlpha) * localT;
 	if (alphaScale) alpha *= alphaScale;
 
+	return { rgb, alpha };
+}
+
+function heatColor(t, palette, alphaScale) {
+	const { rgb, alpha } = heatColorComponents(t, palette, alphaScale);
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
 }
 
@@ -550,6 +587,93 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
 	document.getElementById("legend").hidden = false;
+
+	renderFrameGraphic(wordLedger, palette);
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// A poster-sized (8.5x11in, portrait) gradient distilled from every
+// word's heat color, top to bottom in reading order — always built from
+// word-level granularity regardless of the current analysis mode, since
+// that gives the richest, smoothest gradient. Capped to a reasonable
+// stop count so the exported SVG stays a sane file size even for long
+// documents.
+const MAX_FRAME_GRADIENT_STOPS = 300;
+
+function renderFrameGraphic(wordLedger, palette) {
+	const gradient = document.getElementById("frame-gradient");
+	const downloadBtn = document.getElementById("download-svg-btn");
+
+	if (!wordLedger || wordLedger.length === 0) {
+		gradient.innerHTML = "";
+		downloadBtn.disabled = true;
+		downloadBtn.title = "Load a document first";
+		return;
+	}
+
+	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
+	const sampled = sampleEvenly(wordLedger, MAX_FRAME_GRADIENT_STOPS);
+
+	gradient.innerHTML = "";
+	sampled.forEach((entry, idx) => {
+		const normalized = maxCount > 1 ? (entry.count - 1) / (maxCount - 1) : 0;
+		const { rgb, alpha } = heatColorComponents(normalized, palette);
+		const offset = sampled.length > 1 ? (idx / (sampled.length - 1)) * 100 : 0;
+
+		const stop = document.createElementNS(SVG_NS, "stop");
+		stop.setAttribute("offset", `${offset}%`);
+		stop.setAttribute("stop-color", `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+		stop.setAttribute("stop-opacity", alpha.toFixed(2));
+		gradient.appendChild(stop);
+	});
+
+	downloadBtn.disabled = false;
+	downloadBtn.title = "";
+}
+
+function downloadFrameGraphic() {
+	const svg = document.getElementById("frame-graphic");
+	const clone = svg.cloneNode(true);
+	clone.setAttribute("width", "8.5in");
+	clone.setAttribute("height", "11in");
+
+	const serialized =
+		`<?xml version="1.0" encoding="UTF-8"?>\n` + new XMLSerializer().serializeToString(clone);
+	const blob = new Blob([serialized], { type: "image/svg+xml" });
+	const url = URL.createObjectURL(blob);
+
+	const link = document.createElement("a");
+	link.href = url;
+	link.download = "brushstrokes-frame.svg";
+	link.click();
+	URL.revokeObjectURL(url);
+}
+
+document.getElementById("download-svg-btn").addEventListener("click", downloadFrameGraphic);
+
+// The heatmap's word/sentence spans are rebuilt from scratch on every
+// render (not just recolored in place), so a plain CSS transition on
+// them can't cross-fade between old and new colors. Instead, fade the
+// container out, swap in the freshly-rendered content while invisible,
+// then fade back in — paired with the CSS custom property transitions
+// in style.css, which handle the rest of the page (toolbar, panels,
+// buttons, text) smoothly on their own.
+const PALETTE_FADE_MS = 250;
+
+function fadeToRerenderedHeatmap() {
+	const output = document.getElementById("doc-output");
+	const legendGradient = document.getElementById("legend-gradient");
+	const frameGraphic = document.getElementById("frame-graphic");
+	output.style.opacity = "0";
+	legendGradient.style.opacity = "0";
+	frameGraphic.style.opacity = "0";
+	setTimeout(() => {
+		renderHeatmap(currentSentenceLedger, currentWordLedger);
+		output.style.opacity = "1";
+		legendGradient.style.opacity = "1";
+		frameGraphic.style.opacity = "1";
+	}, PALETTE_FADE_MS);
 }
 
 function populatePaletteSelect() {
@@ -566,7 +690,7 @@ function populatePaletteSelect() {
 		currentPaletteKey = select.value;
 		applyPaletteTheme(PALETTES[currentPaletteKey]);
 		if (currentSentenceLedger && currentWordLedger) {
-			renderHeatmap(currentSentenceLedger, currentWordLedger);
+			fadeToRerenderedHeatmap();
 		}
 	});
 }

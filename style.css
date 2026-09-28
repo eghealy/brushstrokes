@@ -17,6 +17,18 @@
 	box-sizing: border-box;
 }
 
+/*
+ * Cross-fades palette switches: anything whose color comes from a
+ * --color-* custom property (background, panels, controls, borders,
+ * text) transitions smoothly when applyPaletteTheme() updates those
+ * variables. More specific transitions declared further down (e.g. on
+ * button hover states) override this, which is intentional — those
+ * stay snappy for interaction feedback.
+ */
+*, *::before, *::after {
+	transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
 body {
 	margin: 0;
 	font-family: "Source Sans 3", sans-serif;
@@ -58,7 +70,6 @@ h1.rock-heading {
 	min-height: 3.25rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .toolbar-group {
@@ -194,19 +205,20 @@ button.btn:disabled {
 	width: 8rem;
 	height: 0.6rem;
 	border-radius: 999px;
+	transition: opacity 0.25s ease;
 }
 
 .canvas {
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
 	padding: 1.5rem 1.75rem;
 	max-height: 22rem;
 	overflow-y: auto;
 }
 
-.footnote-panel {
+.footnote-panel,
+.graphic-panel {
 	margin-top: 1.25rem;
 	margin-bottom: 2rem;
 	padding: 1.25rem 1.5rem;
@@ -214,6 +226,25 @@ button.btn:disabled {
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	min-height: 6rem;
+}
+
+.frame-wrap {
+	display: flex;
+	justify-content: center;
+}
+
+.frame-graphic {
+	width: 100%;
+	max-width: 20rem;
+	height: auto;
+	display: block;
+	border-radius: 0.3em;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	transition: opacity 0.25s ease;
+}
+
+.footnote-panel .btn {
+	margin-top: 1rem;
 }
 
 .footnote-label {
@@ -250,9 +281,15 @@ button.btn:disabled {
 }
 
 .doc-output {
+	/* Always white, independent of the current palette's light/dark
+	   text derivation — the document text sits on the heat gradient
+	   itself, not the page background, so it isn't held to the same
+	   WCAG contrast logic as the surrounding site chrome. */
+	color: #ffffff;
 	line-height: 1.9;
 	font-size: 1.05rem;
 	white-space: pre-wrap;
+	transition: opacity 0.25s ease;
 }
 
 .doc-output .sentence {
