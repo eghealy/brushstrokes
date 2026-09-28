@@ -22,14 +22,14 @@
 			<img id="painting-image" class="painting-image" src="" alt="">
 		</div>
 		
-		<section class="about-panel">
-			<h2 class="about-heading">Art and decisionmaking</h2>
+		<section class="content-card">
+			<h2>Art and decisionmaking</h2>
 
 			<p>In Ted Chiang’s New Yorker op-ed “Why A.I. isn’t going to make art,” he argues that a 10,000-word short story is created by roughly 10,000 decisions. Likewise, a painting is created by thousands of brushstrokes, each essential to the final work of art.</p>
 			<p>To use generative AI during the creative process is to eliminate the decisionmaking that defines the work of art.</p>
 			<p>This project, Brushstrokes, creates a visual record of the painstaking decisions essential to human creative writing.</p>
 
-			<h3 class="about-subheading">On the selected painting</h3>
+			<h3>On the selected painting</h3>
 			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in &mdash; there is no backend server for this site. Brushstrokes has no database and no API to send your writing to, even if it wanted to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab.</p>
 		</section>
 
@@ -92,22 +92,22 @@
 			<button type="button" id="download-svg-btn" class="btn btn-primary" disabled title="Load a document first">Download as SVG</button>
 		</section>
 
-		<section class="privacy-panel">
-			<h2 class="privacy-heading">How this was built, and how your privacy works</h2>
+		<section class="content-card">
+			<h2>How this was built, and how your privacy works</h2>
 
-			<h3 class="privacy-subheading">AI helped write this tool. It never reads your writing.</h3>
+			<h3>AI helped write this tool. It never reads your writing.</h3>
 			<p>Claude, an AI coding assistant, was used to help write the code running this page &mdash; the HTML, CSS, and JavaScript you're looking at right now. That's the full extent of AI's involvement. Writing the tool and using the tool are two separate things: no AI has seen, or will ever see, any document you connect here.</p>
 
-			<h3 class="privacy-subheading">Everything runs in your browser. Nothing is uploaded anywhere.</h3>
+			<h3>Everything runs in your browser. Nothing is uploaded anywhere.</h3>
 			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in &mdash; there is no backend server for this site. Brushstrokes has no database and no API to send your writing to, even if it wanted to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab.</p>
 
-			<h3 class="privacy-subheading">No AI ever reads or trains on your document.</h3>
+			<h3>No AI ever reads or trains on your document.</h3>
 			<p>The comparisons that power this heatmap come from a plain, deterministic text-diffing algorithm &mdash; the same category of tool used by version control systems like Git. It's math, not AI. Your writing is never sent to Claude, ChatGPT, Gemini, or any other AI model, and it is never used to train one.</p>
 
-			<h3 class="privacy-subheading">What Google can still see</h3>
+			<h3>What Google can still see</h3>
 			<p>Your document already lives on Google's servers, because that's where Google Docs stores it &mdash; this tool doesn't change that. Connecting a doc here uses Google's own sign-in to read data you already have access to, the same as opening the doc yourself. Brushstrokes doesn't add a new party into that relationship, and doesn't keep a copy anywhere else.</p>
 
-			<p style="margin-top: 1.5rem;">Read the full <a href="privacy.html">Privacy Policy</a>.</p>
+			<p>Read the full <a href="privacy.html">Privacy Policy</a>.</p>
 		</section>
 	</main>
 
