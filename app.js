@@ -873,12 +873,14 @@ function setSourceStatus(text) {
 	document.getElementById("mode-label").textContent = text;
 }
 
-document.getElementById("load-demo-btn").addEventListener("click", () => {
+function loadDemo() {
 	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
 	const wordLedger = computeWordLedger(MOCK_REVISIONS);
 	renderHeatmap(sentenceLedger, wordLedger, MOCK_REVISIONS[MOCK_REVISIONS.length - 1]);
 	setSourceStatus(`Demo document — ${MOCK_REVISIONS.length} revisions`);
-});
+}
+
+loadDemo();
 
 /*
  * Google Doc integration.
