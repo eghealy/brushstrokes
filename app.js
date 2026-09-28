@@ -5,20 +5,40 @@
  * the heat gradient work.
  */
 const MOCK_REVISIONS = [
-	"The garden was quiet in the early morning. Birds moved between the trees. A gate stood at the far end of the path.",
-	"The garden was quiet in the early morning light. Birds moved between the trees, calling to each other. A gate stood at the far end of the path.",
-	"The garden sat quiet under the early morning light. Birds moved between the trees, calling to each other. A gate stood rusted at the far end of the path.",
-	"The garden sat quiet under a pale morning light. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path.",
-	"The garden sat still under a pale morning light. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path, half open.",
-	"The garden sat still under a pale morning light, dew still clinging to the grass. Birds darted between the trees, calling to each other. A rusted gate marked the far end of the path, half open.",
-	"The garden sat still under a pale morning light, dew clinging to the grass. Birds darted between the trees, calling to one another in the cold air. A rusted gate marked the far end of the path, half open, waiting."
+	"The garden was quiet in the early morning. Birds moved between the trees.\nA gate stood at the far end of the path.",
+	"The garden was quiet in the early morning light. Birds moved between the trees, calling to each other.\nA gate stood at the far end of the path.",
+	"The garden sat quiet under the early morning light. Birds moved between the trees, calling to each other.\nA gate stood rusted at the far end of the path.",
+	"The garden sat quiet under a pale morning light. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path.",
+	"The garden sat still under a pale morning light. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path, half open.",
+	"The garden sat still under a pale morning light, dew still clinging to the grass. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path, half open.",
+	"The garden sat still under a pale morning light, dew clinging to the grass. Birds darted between the trees, calling to one another in the cold air.\nA rusted gate marked the far end of the path, half open, waiting."
 ];
 
+// Splits on line breaks (one or more), so paragraph structure from the
+// source document is preserved rather than flattened into one run of text.
+function splitParagraphs(text) {
+	return text
+		.split(/\n+/)
+		.map((p) => p.trim())
+		.filter(Boolean);
+}
+
+// Sentence splitting is paragraph-aware: a paragraph is split into
+// sentences on its own, so a heading or short line with no ending
+// punctuation still becomes its own sentence instead of bleeding into
+// the next paragraph's text.
 function splitSentences(text) {
-	const trimmed = text.trim();
-	if (!trimmed) return [];
-	const matches = trimmed.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g);
-	return matches ? matches.map((s) => s.trim()).filter(Boolean) : [trimmed];
+	const sentences = [];
+	splitParagraphs(text).forEach((paragraph) => {
+		const matches = paragraph.match(/[^.!?]+[.!?]+(\s+|$)|[^.!?]+$/g);
+		if (matches) {
+			matches.forEach((s) => {
+				const trimmed = s.trim();
+				if (trimmed) sentences.push(trimmed);
+			});
+		}
+	});
+	return sentences;
 }
 
 function splitWords(text) {
@@ -140,9 +160,10 @@ const PALETTES = {
 		background: "#180E0A",
 		highlight: "#EFBC51",
 		stops: [
-			{ t: 0, hex: "#490D0D", alpha: 0.15 },
-			{ t: 0.5, hex: "#A93920", alpha: 0.55 },
-			{ t: 1, hex: "#EFBC51", alpha: 0.92 }
+			{ t: 0, hex: "#4B1E09", alpha: 0.15 },
+			{ t: 0.33, hex: "#6C100D", alpha: 0.4 },
+			{ t: 0.66, hex: "#8C5B17", alpha: 0.65 },
+			{ t: 1, hex: "#CFC5A7", alpha: 0.92 }
 		]
 	},
 	rembrandt: {
@@ -150,9 +171,10 @@ const PALETTES = {
 		background: "#0F0909",
 		highlight: "#E4D3BC",
 		stops: [
-			{ t: 0, hex: "#3D2E27", alpha: 0.15 },
-			{ t: 0.5, hex: "#817B6B", alpha: 0.55 },
-			{ t: 1, hex: "#D9C39C", alpha: 0.92 }
+			{ t: 0, hex: "#34240D", alpha: 0.15 },
+			{ t: 0.33, hex: "#6D461D", alpha: 0.4 },
+			{ t: 0.66, hex: "#B57661", alpha: 0.65 },
+			{ t: 1, hex: "#DAC6A0", alpha: 0.92 }
 		]
 	},
 	okeeffe: {
@@ -160,9 +182,10 @@ const PALETTES = {
 		background: "#042C2B",
 		highlight: "#E2B67C",
 		stops: [
-			{ t: 0, hex: "#00786B", alpha: 0.15 },
-			{ t: 0.5, hex: "#02A299", alpha: 0.55 },
-			{ t: 1, hex: "#7FD6CB", alpha: 0.92 }
+			{ t: 0, hex: "#046754", alpha: 0.15 },
+			{ t: 0.33, hex: "#00A79F", alpha: 0.4 },
+			{ t: 0.66, hex: "#83DBCF", alpha: 0.65 },
+			{ t: 1, hex: "#E7BB81", alpha: 0.92 }
 		]
 	},
 	vangogh: {
@@ -171,7 +194,8 @@ const PALETTES = {
 		highlight: "#C3A21F",
 		stops: [
 			{ t: 0, hex: "#844210", alpha: 0.15 },
-			{ t: 0.5, hex: "#C3A21F", alpha: 0.55 },
+			{ t: 0.33, hex: "#9E6F0C", alpha: 0.4 },
+			{ t: 0.66, hex: "#C3A21F", alpha: 0.65 },
 			{ t: 1, hex: "#BCBA4B", alpha: 0.92 }
 		]
 	}
@@ -183,6 +207,7 @@ let currentPaletteKey = DEFAULT_PALETTE_KEY;
 let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
 let currentSentenceLedger = null;
 let currentWordLedger = null;
+let currentFinalText = null;
 
 function hexToRgb(hex) {
 	const clean = hex.replace("#", "");
@@ -335,7 +360,24 @@ function resetFootnote() {
 	content.appendChild(placeholder);
 }
 
-function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output) {
+// Groups a flat sentence ledger back into per-paragraph chunks, using the
+// current (final) revision's text to know where the paragraph breaks are.
+// Falls back to one big paragraph if no final text is available.
+function groupSentencesByParagraph(sentenceLedger, finalText) {
+	if (!finalText) return [sentenceLedger];
+	let cursor = 0;
+	const groups = splitParagraphs(finalText)
+		.map((paragraph) => {
+			const count = splitSentences(paragraph).length;
+			const group = sentenceLedger.slice(cursor, cursor + count);
+			cursor += count;
+			return group;
+		})
+		.filter((group) => group.length > 0);
+	return groups.length ? groups : [sentenceLedger];
+}
+
+function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, finalText) {
 	const maxWordCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
 	const topStop = palette.stops[palette.stops.length - 1];
 	const topRgb = hexToRgb(topStop.hex);
@@ -346,84 +388,95 @@ function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output) {
 	);
 
 	let wordCursor = 0;
+	const paragraphGroups = groupSentencesByParagraph(sentenceLedger, finalText);
 
-	sentenceLedger.forEach((sentenceEntry, sentenceIdx) => {
-		const sentenceSpan = document.createElement("span");
-		sentenceSpan.className = "sentence";
-		sentenceSpan.title = `Sentence edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
+	paragraphGroups.forEach((paragraphSentences, paragraphIdx) => {
+		paragraphSentences.forEach((sentenceEntry, sentenceIdx) => {
+			const sentenceSpan = document.createElement("span");
+			sentenceSpan.className = "sentence";
+			sentenceSpan.title = `Sentence edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
 
-		const wordsInSentence = splitWords(sentenceEntry.text).length;
-		const wordEntries = wordLedger.slice(wordCursor, wordCursor + wordsInSentence);
+			const wordsInSentence = splitWords(sentenceEntry.text).length;
+			const wordEntries = wordLedger.slice(wordCursor, wordCursor + wordsInSentence);
 
-		// One continuous gradient across the whole sentence — a color stop
-		// per word, positioned at that word's fraction across the sentence.
-		// CSS interpolates smoothly between stops, so the heat flows across
-		// word boundaries instead of jumping in discrete blocks.
-		const stops = wordEntries.map((_, wordIdx) => {
-			const globalIdx = wordCursor + wordIdx;
-			const pos = wordEntries.length > 1 ? (wordIdx / (wordEntries.length - 1)) * 100 : 50;
-			return `${heatColor(wordNormalized[globalIdx], palette)} ${pos}%`;
+			// One continuous gradient across the whole sentence — a color stop
+			// per word, positioned at that word's fraction across the sentence.
+			// CSS interpolates smoothly between stops, so the heat flows across
+			// word boundaries instead of jumping in discrete blocks.
+			const stops = wordEntries.map((_, wordIdx) => {
+				const globalIdx = wordCursor + wordIdx;
+				const pos = wordEntries.length > 1 ? (wordIdx / (wordEntries.length - 1)) * 100 : 50;
+				return `${heatColor(wordNormalized[globalIdx], palette)} ${pos}%`;
+			});
+			sentenceSpan.style.backgroundImage = `linear-gradient(to right, ${stops.join(", ")})`;
+
+			wordEntries.forEach((wordEntry, wordIdx) => {
+				const globalIdx = wordCursor + wordIdx;
+				const own = wordNormalized[globalIdx];
+
+				const wordSpan = document.createElement("span");
+				wordSpan.className = "word";
+				if (own > 0.75) {
+					wordSpan.classList.add("heat-high");
+					wordSpan.style.setProperty(
+						"--heat-glow-color",
+						`rgba(${topRgb[0]}, ${topRgb[1]}, ${topRgb[2]}, 0.6)`
+					);
+				}
+				wordSpan.title = `"${wordEntry.text}" edited ${wordEntry.count} time${wordEntry.count === 1 ? "" : "s"}`;
+				wordSpan.textContent = wordEntry.text;
+				wordSpan.addEventListener("mouseenter", () => showFootnote(wordEntry, "word"));
+				wordSpan.addEventListener("mouseleave", resetFootnote);
+				sentenceSpan.appendChild(wordSpan);
+				if (wordIdx < wordEntries.length - 1) sentenceSpan.appendChild(document.createTextNode(" "));
+			});
+
+			wordCursor += wordsInSentence;
+
+			output.appendChild(sentenceSpan);
+			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
-		sentenceSpan.style.backgroundImage = `linear-gradient(to right, ${stops.join(", ")})`;
 
-		wordEntries.forEach((wordEntry, wordIdx) => {
-			const globalIdx = wordCursor + wordIdx;
-			const own = wordNormalized[globalIdx];
-
-			const wordSpan = document.createElement("span");
-			wordSpan.className = "word";
-			if (own > 0.75) {
-				wordSpan.classList.add("heat-high");
-				wordSpan.style.setProperty(
-					"--heat-glow-color",
-					`rgba(${topRgb[0]}, ${topRgb[1]}, ${topRgb[2]}, 0.6)`
-				);
-			}
-			wordSpan.title = `"${wordEntry.text}" edited ${wordEntry.count} time${wordEntry.count === 1 ? "" : "s"}`;
-			wordSpan.textContent = wordEntry.text;
-			wordSpan.addEventListener("mouseenter", () => showFootnote(wordEntry, "word"));
-			wordSpan.addEventListener("mouseleave", resetFootnote);
-			sentenceSpan.appendChild(wordSpan);
-			if (wordIdx < wordEntries.length - 1) sentenceSpan.appendChild(document.createTextNode(" "));
-		});
-
-		wordCursor += wordsInSentence;
-
-		output.appendChild(sentenceSpan);
-		if (sentenceIdx < sentenceLedger.length - 1) output.appendChild(document.createTextNode(" "));
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
 	});
 }
 
-function renderSentenceLevelHeatmap(sentenceLedger, palette, output) {
+function renderSentenceLevelHeatmap(sentenceLedger, palette, output, finalText) {
 	const maxSentenceCount = Math.max(...sentenceLedger.map((entry) => entry.count), 1);
+	const paragraphGroups = groupSentencesByParagraph(sentenceLedger, finalText);
 
-	sentenceLedger.forEach((sentenceEntry, sentenceIdx) => {
-		const sentenceSpan = document.createElement("span");
-		sentenceSpan.className = "sentence";
-		const normalized =
-			maxSentenceCount > 1 ? (sentenceEntry.count - 1) / (maxSentenceCount - 1) : 0;
-		sentenceSpan.style.backgroundColor = heatColor(normalized, palette);
-		sentenceSpan.title = `Edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
-		sentenceSpan.textContent = sentenceEntry.text;
-		sentenceSpan.addEventListener("mouseenter", () => showFootnote(sentenceEntry, "sentence"));
-		sentenceSpan.addEventListener("mouseleave", resetFootnote);
-		output.appendChild(sentenceSpan);
-		if (sentenceIdx < sentenceLedger.length - 1) output.appendChild(document.createTextNode(" "));
+	paragraphGroups.forEach((paragraphSentences, paragraphIdx) => {
+		paragraphSentences.forEach((sentenceEntry, sentenceIdx) => {
+			const sentenceSpan = document.createElement("span");
+			sentenceSpan.className = "sentence";
+			const normalized =
+				maxSentenceCount > 1 ? (sentenceEntry.count - 1) / (maxSentenceCount - 1) : 0;
+			sentenceSpan.style.backgroundColor = heatColor(normalized, palette);
+			sentenceSpan.title = `Edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
+			sentenceSpan.textContent = sentenceEntry.text;
+			sentenceSpan.addEventListener("mouseenter", () => showFootnote(sentenceEntry, "sentence"));
+			sentenceSpan.addEventListener("mouseleave", resetFootnote);
+			output.appendChild(sentenceSpan);
+			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
+		});
+
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
 	});
 }
 
-function renderHeatmap(sentenceLedger, wordLedger) {
+function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 	currentSentenceLedger = sentenceLedger;
 	currentWordLedger = wordLedger;
+	if (finalText !== undefined) currentFinalText = finalText;
 	const palette = PALETTES[currentPaletteKey];
 	const output = document.getElementById("doc-output");
 	output.innerHTML = "";
 	resetFootnote();
 
 	if (currentAnalysisMode === "sentence") {
-		renderSentenceLevelHeatmap(sentenceLedger, palette, output);
+		renderSentenceLevelHeatmap(sentenceLedger, palette, output, currentFinalText);
 	} else {
-		renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output);
+		renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, currentFinalText);
 	}
 
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
@@ -481,7 +534,7 @@ function setSourceStatus(text) {
 document.getElementById("load-demo-btn").addEventListener("click", () => {
 	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
 	const wordLedger = computeWordLedger(MOCK_REVISIONS);
-	renderHeatmap(sentenceLedger, wordLedger);
+	renderHeatmap(sentenceLedger, wordLedger, MOCK_REVISIONS[MOCK_REVISIONS.length - 1]);
 	setSourceStatus(`Demo document — ${MOCK_REVISIONS.length} revisions`);
 });
 
@@ -602,7 +655,7 @@ async function loadGoogleDoc(fileId) {
 
 	const sentenceLedger = computeSentenceLedger(texts);
 	const wordLedger = computeWordLedger(texts);
-	renderHeatmap(sentenceLedger, wordLedger);
+	renderHeatmap(sentenceLedger, wordLedger, texts[texts.length - 1]);
 	setSourceStatus(`"${title}" — ${sampledIds.length} of ${allRevisionIds.length} revisions`);
 }
 
