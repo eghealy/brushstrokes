@@ -70,7 +70,6 @@ h1.rock-heading {
 	min-height: 3.25rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .toolbar-group {
@@ -213,7 +212,6 @@ button.btn:disabled {
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 20px rgba(0, 0, 0, 0.2);
 	padding: 1.5rem 1.75rem;
 	max-height: 22rem;
 	overflow-y: auto;
