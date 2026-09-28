@@ -147,7 +147,7 @@ const PALETTES = {
 	johnLurie: {
 		label: "John Lurie",
 		image: "Images/lurie_two_dancers.jpeg",
-		imageTitle: "Two Dancers",
+		imageTitle: "Two Dancers. Antiques. Some suitcases. A parrot. And a blue mess.",
 		background: "#A5DB79",
 		highlight: "#0D2337",
 		stops: [
