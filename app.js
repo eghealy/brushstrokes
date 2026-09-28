@@ -305,6 +305,15 @@ function rgbToHex(r, g, b) {
 	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
+// Straight-line RGB distance — a rough but cheap stand-in for "how
+// visually different are these two colors," used to pick the more
+// noticeable of two hover-shift candidates.
+function colorDistance(hexA, hexB) {
+	const [r1, g1, b1] = hexToRgb(hexA);
+	const [r2, g2, b2] = hexToRgb(hexB);
+	return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+}
+
 // Mixes a hex color toward white by `amount` (0-1). Used to derive lighter
 // "elevated" surface/text shades from a palette's base background color.
 function lightenHex(hex, amount) {
@@ -374,6 +383,49 @@ function applyPaletteTheme(palette) {
 	const darkenedContrast = contrastRatio(backgroundLuminance, relativeLuminance(darkenHex(background, 0.86)));
 	const textAdjust = darkenedContrast > lightenedContrast ? darkenHex : lightenHex;
 
+	// A bigger shift than the old 0.15 so hovering the primary button
+	// reads as a clear, deliberate change rather than a subtle tint. The
+	// shift direction is chosen per-highlight (not reusing textAdjust,
+	// which is tuned for the unrelated background color): prefer whichever
+	// of lighten/darken is the more visually distinct shift, but only
+	// between options that stay readable — a highlight near white or
+	// black has little room to move in one direction (e.g. lightening an
+	// already-near-white highlight barely changes it), and a mid-
+	// brightness highlight can have one direction land in an unreadable
+	// middle-gray zone for both candidate text colors while the other
+	// doesn't. Also gets its own contrast-checked text color (the "third
+	// color" a palette can define via highlightHoverText, same pattern
+	// as the rest).
+	const AA_CONTRAST = 4.5;
+	const bestTextContrast = (hex) => {
+		const lum = relativeLuminance(hex);
+		return Math.max(
+			contrastRatio(lum, relativeLuminance("#17223D")),
+			contrastRatio(lum, relativeLuminance("#F4F5F7"))
+		);
+	};
+	const lightenedHover = lightenHex(highlight, 0.3);
+	const darkenedHover = darkenHex(highlight, 0.3);
+	const lightenedReadable = bestTextContrast(lightenedHover) >= AA_CONTRAST;
+	const darkenedReadable = bestTextContrast(darkenedHover) >= AA_CONTRAST;
+
+	let highlightHover;
+	if (palette.highlightHover) {
+		highlightHover = palette.highlightHover;
+	} else if (lightenedReadable && darkenedReadable) {
+		highlightHover =
+			colorDistance(highlight, lightenedHover) >= colorDistance(highlight, darkenedHover)
+				? lightenedHover
+				: darkenedHover;
+	} else if (lightenedReadable) {
+		highlightHover = lightenedHover;
+	} else if (darkenedReadable) {
+		highlightHover = darkenedHover;
+	} else {
+		highlightHover =
+			bestTextContrast(lightenedHover) >= bestTextContrast(darkenedHover) ? lightenedHover : darkenedHover;
+	}
+
 	const theme = {
 		"--color-background": background,
 		// Cards/surfaces always lighten from the page background — they
@@ -390,7 +442,8 @@ function applyPaletteTheme(palette) {
 		"--color-text-faint": palette.textFaint || textAdjust(background, 0.42),
 		"--color-highlight": highlight,
 		"--color-highlight-text": palette.highlightText || pickContrastText(highlight),
-		"--color-highlight-hover": palette.highlightHover || textAdjust(highlight, 0.15)
+		"--color-highlight-hover": highlightHover,
+		"--color-highlight-hover-text": palette.highlightHoverText || pickContrastText(highlightHover)
 	};
 
 	const root = document.documentElement.style;
