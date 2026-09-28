@@ -144,19 +144,77 @@ function ledgerEntryFor(ledger, text) {
  * and re-themes the whole site automatically — no other code changes.
  */
 const PALETTES = {
-	thermal: {
-		label: "Default",
-		background: "#0A2243",
-		highlight: "#FA935C",
+	johnLurie: {
+		label: "John Lurie",
+		background: "#0D2337",
+		highlight: "#A5DB79",
 		stops: [
-			{ t: 0, hex: "#3B82F6", alpha: 0.2 },
-			{ t: 0.33, hex: "#22D399", alpha: 0.4 },
-			{ t: 0.66, hex: "#FACC15", alpha: 0.65 },
-			{ t: 1, hex: "#EF4444", alpha: 0.9 }
+			{ t: 0, hex: "#40B8C2", alpha: 0.80 },
+			{ t: 0.33, hex: "#B84F20", alpha: 0.80 },
+			{ t: 0.66, hex: "#D4BB00", alpha: 0.80 },
+			{ t: 1, hex: "#A5DB79", alpha: 0.80 }
 		]
 	},
 	johnSingerSargent: {
 		label: "John Singer Sargent",
+		background: "#180E0A",
+		highlight: "#EFBC51",
+		stops: [
+			{ t: 0, hex: "#4B1E09", alpha: 0.80},
+			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
+			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
+			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
+		]
+	},
+	noahDavis: {
+		label: "Noah Davis",
+		background: "#463F39",
+		highlight: "#C6AF95",
+		stops: [
+			{ t: 0, hex: "#6D5F60", alpha: 0.80},
+			{ t: 0.33, hex: "#7B7B7E", alpha: 0.80},
+			{ t: 0.66, hex: "#9A8D90", alpha: 0.80},
+			{ t: 1, hex: "#728164", alpha: 0.80}
+		]
+	},
+	davidHockney: {
+		label: "David Hockney",
+		background: "#171413",
+		highlight: "#A9F2EB",
+		stops: [
+			{ t: 0, hex: "#865449", alpha: 0.80},
+			{ t: 0.20, hex: "#AB3153", alpha: 0.80},
+			{ t: 0.40, hex: "#ECABB1", alpha: 0.80},
+			{ t: 0.60, hex: "#669D64", alpha: 0.80},
+			{ t: 0.80, hex: "#5FC0EC", alpha: 0.80},
+			{ t: 1, hex: "#A9F2EB", alpha: 0.80}
+		]
+	},
+	kaySage: {
+		label: "Kay Sage",
+		background: "#0E1C1B",
+		highlight: "#E5DDCF",
+		stops: [
+			{ t: 0, hex: "#48604A", alpha: 0.80},
+			{ t: 0.25, hex: "#99A381", alpha: 0.80},
+			{ t: 0.50, hex: "#CDBC92", alpha: 0.80},
+			{ t: 0.75, hex: "#E5DDCF", alpha: 0.80},
+			{ t: 1, hex: "#E86131", alpha: 0.80}
+		]
+	},
+	royLichtenstein: {
+		label: "Roy Lichtenstein",
+		background: "#000000",
+		highlight: "#F0EFEB",
+		stops: [
+			{ t: 0, hex: "#BA1325", alpha: 0.80},
+			{ t: 0.33, hex: "#ECD1D2", alpha: 0.80},
+			{ t: 0.66, hex: "#F0EFEB", alpha: 0.80},
+			{ t: 1, hex: "#FCE013", alpha: 0.80}
+		]
+	},
+	henriMatisse: {
+		label: "Henri Matisse",
 		background: "#180E0A",
 		highlight: "#EFBC51",
 		stops: [
@@ -201,7 +259,7 @@ const PALETTES = {
 	}
 };
 
-const DEFAULT_PALETTE_KEY = "thermal";
+const DEFAULT_PALETTE_KEY = "johnLurie";
 const DEFAULT_ANALYSIS_MODE = "word";
 let currentPaletteKey = DEFAULT_PALETTE_KEY;
 let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
