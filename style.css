@@ -11,6 +11,7 @@
 	--color-highlight: #fa935c;
 	--color-highlight-text: #17223d;
 	--color-highlight-hover: #fbaf82;
+	--color-highlight-hover-text: #17223d;
 }
 
 * {
@@ -34,6 +35,14 @@ body {
 	font-family: "Source Sans 3", sans-serif;
 	background-color: var(--color-background);
 	color: var(--color-text);
+}
+
+a {
+	color: var(--color-highlight);
+}
+
+a:hover {
+	color: var(--color-highlight-hover);
 }
 
 main {
@@ -114,7 +123,7 @@ button.btn:disabled {
 	cursor: not-allowed;
 }
 
-.btn-primary {
+button.btn-primary {
 	border-color: var(--color-highlight);
 	background-color: var(--color-highlight);
 	color: var(--color-highlight-text);
@@ -124,6 +133,7 @@ button.btn:disabled {
 button.btn-primary:hover:not(:disabled) {
 	background-color: var(--color-highlight-hover);
 	border-color: var(--color-highlight-hover);
+	color: var(--color-highlight-hover-text);
 }
 
 .field-inline {
