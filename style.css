@@ -263,6 +263,11 @@ button.btn:disabled {
 }
 
 .doc-output {
+	/* Always white, independent of the current palette's light/dark
+	   text derivation — the document text sits on the heat gradient
+	   itself, not the page background, so it isn't held to the same
+	   WCAG contrast logic as the surrounding site chrome. */
+	color: #ffffff;
 	line-height: 1.9;
 	font-size: 1.05rem;
 	white-space: pre-wrap;
