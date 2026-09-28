@@ -146,6 +146,8 @@ function ledgerEntryFor(ledger, text) {
 const PALETTES = {
 	johnLurie: {
 		label: "John Lurie",
+		image: "Images/lurie_two_dancers.jpeg",
+		imageTitle: "Two Dancers",
 		background: "#A5DB79",
 		highlight: "#0D2337",
 		stops: [
@@ -158,6 +160,8 @@ const PALETTES = {
 	},
 	johnSingerSargent: {
 		label: "John Singer Sargent",
+		image: "Images/sargent_lady_helen_vincent_viscountess_dabernon.jpg",
+		imageTitle: "Lady Helen Vincent, Viscountess D'Abernon",
 		background: "#180E0A",
 		highlight: "#EFBC51",
 		stops: [
@@ -169,6 +173,8 @@ const PALETTES = {
 	},
 	noahDavis: {
 		label: "Noah Davis",
+		image: "Images/davis_pueblo_del_rio-_arabesque.jpg",
+		imageTitle: "Pueblo del Rio: Arabesque",
 		background: "#9A8D90",
 		highlight: "#463F39",
 		stops: [
@@ -181,6 +187,8 @@ const PALETTES = {
 	},
 	davidHockney: {
 		label: "David Hockney",
+		image: "Images/hockney_american_collectors.jpg",
+		imageTitle: "American Collectors",
 		background: "#AB3153",
 		highlight: "#A9F2EB",
 		stops: [
@@ -194,6 +202,8 @@ const PALETTES = {
 	},
 	kaySage: {
 		label: "Kay Sage",
+		image: "Images/sage_i_saw_three_cities.jpg",
+		imageTitle: "I Saw Three Cities",
 		background: "#0E1C1B",
 		highlight: "#E5DDCF",
 		stops: [
@@ -206,6 +216,8 @@ const PALETTES = {
 	},
 	royLichtenstein: {
 		label: "Roy Lichtenstein",
+		image: "Images/lichtenstein_masterpiece.jpg",
+		imageTitle: "Masterpiece",
 		background: "#000000",
 		highlight: "#F0EFEB",
 		stops: [
@@ -218,6 +230,8 @@ const PALETTES = {
 	},
 	henriMatisse: {
 		label: "Henri Matisse",
+		image: "Images/matisse_the_red_studio.jpg",
+		imageTitle: "The Red Studio",
 		background: "#953C26",
 		highlight: "#C5C1B5",
 		stops: [
@@ -231,6 +245,8 @@ const PALETTES = {
 	},
 	rembrandt: {
 		label: "Rembrandt",
+		image: "Images/rembrandt_the_anatomy_lesson_of_dr_nicolaes_tulp.jpg",
+		imageTitle: "The Anatomy Lesson of Dr. Nicolaes Tulp",
 		background: "#0F0909",
 		highlight: "#E4D3BC",
 		stops: [
@@ -242,6 +258,8 @@ const PALETTES = {
 	},
 	okeeffe: {
 		label: "Georgia O'Keeffe",
+		image: "Images/okeeffe_ladder_to_the_moon.jpg",
+		imageTitle: "Ladder to the Moon",
 		background: "#00A79F",
 		highlight: "#E2B67C",
 		stops: [
@@ -254,6 +272,8 @@ const PALETTES = {
 	},
 	vangogh: {
 		label: "Vincent van Gogh",
+		image: "Images/vangogh_sunflowers.jpg",
+		imageTitle: "Sunflowers",
 		background: "#C3A21F",
 		highlight: "#844210",
 		stops: [
@@ -381,6 +401,23 @@ function applyPaletteTheme(palette) {
 		`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6">` +
 		`<path d="M1 1l4 4 4-4" fill="none" stroke="${encodeURIComponent(theme["--color-text-muted"])}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 	root.setProperty("--select-caret", `url('${caretSvg}')`);
+
+	updatePaintingReference(palette);
+}
+
+function updatePaintingReference(palette) {
+	const img = document.getElementById("painting-image");
+	const caption = document.getElementById("painting-caption");
+	if (!palette.image) {
+		img.style.display = "none";
+		caption.textContent = "";
+		return;
+	}
+	const captionText = palette.imageTitle ? `${palette.imageTitle}, ${palette.label}` : palette.label;
+	img.style.display = "block";
+	img.src = palette.image;
+	img.alt = captionText;
+	caption.textContent = captionText;
 }
 
 function heatColorComponents(t, palette, alphaScale) {
