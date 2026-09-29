@@ -351,6 +351,10 @@ button.btn-primary:hover:not(:disabled) {
 		right: 3.7rem;
 		width: 12rem;
 	}
+
+	.footnote-hover-panel {
+		display: none;
+	}
 }
 
 /*

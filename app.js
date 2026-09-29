@@ -1173,11 +1173,10 @@ function openDocPicker() {
 	const picker = new google.picker.PickerBuilder()
 		.setOAuthToken(googleAccessToken)
 		.setDeveloperKey(GOOGLE_API_KEY)
-		.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 		.addView(
-			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS)
-				.setMimeTypes("application/vnd.google-apps.document")
-				.setEnableDrives(true)
+			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS).setMimeTypes(
+				"application/vnd.google-apps.document"
+			)
 		)
 		.setCallback((data) => {
 			if (data.action !== google.picker.Action.PICKED) return;
