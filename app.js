@@ -522,22 +522,24 @@ function heatColor(t, palette, alphaScale) {
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
 }
 
-// Builds the CSS linear-gradient() used for the legend bar, directly
-// from a palette's own stops -- unlike heatColorComponents, this
-// doesn't interpolate between them itself; it hands all the stops to
-// the browser and lets its own gradient rendering do that blending.
-// 180deg runs top-to-bottom, matching the legend's "less" label above
-// the bar and "more" below it (stops are already ordered low t to
-// high t, i.e. least to most edited).
-function paletteToCssGradient(palette) {
-	const stops = palette.stops
+// Builds just the color-stop list for the legend bar, directly from a
+// palette's own stops -- unlike heatColorComponents, this doesn't
+// interpolate between them itself; it hands all the stops to the
+// browser and lets its own gradient rendering do that blending.
+// Deliberately excludes the linear-gradient(...) wrapper and angle:
+// the legend runs vertically on desktop but horizontally in the
+// mobile drawer, and CSS (see .legend-gradient's media query) picks
+// the angle -- this same stop list works unchanged either way, since
+// they're ordered low t to high t (least to most edited) regardless
+// of which direction that ends up pointing on screen.
+function paletteToGradientStops(palette) {
+	return palette.stops
 		.map((stop) => {
 			const rgb = hexToRgb(stop.hex);
 			const alpha = stop.alpha ?? 1;
 			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha}) ${stop.t * 100}%`;
 		})
 		.join(", ");
-	return `linear-gradient(180deg, ${stops})`;
 }
 
 // Keeps the popout on-screen horizontally, and flips it above the
@@ -726,7 +728,7 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText, { updateFrame = tr
 		renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, currentFinalText);
 	}
 
-	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
+	document.getElementById("legend-gradient").style.setProperty("--legend-stops", paletteToGradientStops(palette));
 	document.getElementById("legend").hidden = false;
 
 	if (updateFrame) renderFrameGraphic(wordLedger, sentenceLedger, palette, currentAnalysisMode);

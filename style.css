@@ -305,6 +305,14 @@ button.btn-primary:hover:not(:disabled) {
 	flex-shrink: 0;
 }
 
+.style-rail-row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+}
+
 .rail-title {
 	font-family: "Source Sans 3", sans-serif;
 	font-size: 0.7rem;
@@ -499,10 +507,8 @@ button.btn-primary:hover:not(:disabled) {
 		transform: translateY(100%);
 		width: 100%;
 		max-width: none;
-		flex-direction: row;
-		flex-wrap: wrap;
-		align-items: flex-start;
-		justify-content: center;
+		flex-direction: column;
+		align-items: stretch;
 		gap: 0.75rem;
 		max-height: 75vh;
 		overflow-y: auto;
@@ -519,9 +525,44 @@ button.btn-primary:hover:not(:disabled) {
 		transform: translateY(0);
 	}
 
+	/* Palette on top, Adjustments below -- each full width. */
 	.palette-rail,
 	.style-rail {
-		flex: 1 1 12rem;
+		width: 100%;
+		flex: 0 0 auto;
+	}
+
+	/* Thumbnails scroll left/right by touch instead of the desktop's
+	   vertical list + up/down carets. */
+	.palette-rail-list {
+		flex-direction: row;
+		max-height: none;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+	}
+
+	.palette-rail-scroll-btn {
+		display: none;
+	}
+
+	/* Radio buttons to the left of the legend, instead of stacked. */
+	.style-rail-row {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: center;
+	}
+
+	/* The legend's own gradient runs horizontally to match. */
+	.legend-row {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.legend-gradient {
+		width: 6rem;
+		height: 0.6rem;
+		background: linear-gradient(90deg, var(--legend-stops));
 	}
 
 	.mobile-drawer-close {
@@ -640,6 +681,13 @@ button.btn-primary:hover:not(:disabled) {
 	text-align: left;
 }
 
+.legend-row {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+}
+
 /* display:flex on the bare class would beat the browser's default
    [hidden] { display: none } (author rules always win at equal
    specificity) -- see the same fix on .frame-loading. */
@@ -653,6 +701,11 @@ button.btn-primary:hover:not(:disabled) {
 	height: 6rem;
 	border-radius: 999px;
 	transition: opacity 0.25s ease;
+	/* --legend-stops is set from JS (see applyPaletteTheme); the angle
+	   is fixed here rather than baked into that value, since it's
+	   vertical on desktop but horizontal in the mobile drawer -- same
+	   stop list either way (see paletteToGradientStops). */
+	background: linear-gradient(180deg, var(--legend-stops));
 }
 
 .footnote-panel {

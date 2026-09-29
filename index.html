@@ -126,22 +126,26 @@
 		<div class="style-rail" id="style-rail" role="group" aria-label="Style and edit-heat legend">
 			<span class="rail-title">Adjustments</span>
 
-			<div class="radio-group" id="analysis-toggle" role="radiogroup" aria-label="Analysis mode">
-				<label class="radio-option">
-					<input type="radio" name="analysis-mode" value="sentence" checked>
-					Sentence
-				</label>
-				<label class="radio-option">
-					<input type="radio" name="analysis-mode" value="word">
-					Word
-				</label>
-			</div>
+			<div class="style-rail-row">
+				<div class="radio-group" id="analysis-toggle" role="radiogroup" aria-label="Analysis mode">
+					<label class="radio-option">
+						<input type="radio" name="analysis-mode" value="sentence" checked>
+						Sentence
+					</label>
+					<label class="radio-option">
+						<input type="radio" name="analysis-mode" value="word">
+						Word
+					</label>
+				</div>
 
-			<div class="legend" id="legend" hidden>
-				<span class="rail-title">Legend</span>
-				<span class="legend-label">Edited less</span>
-				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
-				<span class="legend-label">Edited more</span>
+				<div class="legend" id="legend" hidden>
+					<span class="rail-title">Legend</span>
+					<div class="legend-row">
+						<span class="legend-label">Edited less</span>
+						<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
+						<span class="legend-label">Edited more</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
