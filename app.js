@@ -294,12 +294,17 @@ let currentSentenceLedger = null;
 let currentWordLedger = null;
 let currentFinalText = null;
 
+// Parses a "#rrggbb" string into an [r, g, b] array (each 0-255).
 function hexToRgb(hex) {
 	const clean = hex.replace("#", "");
 	const bigint = parseInt(clean, 16);
 	return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
 }
 
+// Inverse of hexToRgb -- clamps each channel to 0-255 (callers pass in
+// already-blended floats from the lighten/darken/interpolation helpers
+// below, which can drift slightly out of range) and formats back as a
+// "#rrggbb" string.
 function rgbToHex(r, g, b) {
 	const toHex = (c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0");
 	return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
@@ -340,12 +345,19 @@ function relativeLuminance(hex) {
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+// The standard WCAG contrast-ratio formula between two relative
+// luminances (order doesn't matter -- it sorts them itself). Returns a
+// value from 1 (identical) to 21 (pure black on pure white); 4.5 is the
+// AA threshold this file checks against everywhere below.
 function contrastRatio(luminanceA, luminanceB) {
 	const lighter = Math.max(luminanceA, luminanceB);
 	const darker = Math.min(luminanceA, luminanceB);
 	return (lighter + 0.05) / (darker + 0.05);
 }
 
+// Picks whichever of a near-black or near-white text color has better
+// contrast against `hex`. Used as the fallback when a palette doesn't
+// specify its own text color for a highlight/hover color.
 function pickContrastText(hex) {
 	const luminance = relativeLuminance(hex);
 	const contrastWithDark = contrastRatio(luminance, relativeLuminance("#17223D"));
@@ -467,6 +479,15 @@ function updatePaintingReference(palette) {
 	caption.textContent = captionText;
 }
 
+// The core heat-gradient interpolation: given a normalized edit-heat
+// value `t` (0 = never edited, 1 = most-edited word/sentence in the
+// document) and a palette's list of {t, hex, alpha} stops, finds the
+// two stops `t` falls between and linearly blends their RGB and alpha
+// by how far between them `t` sits. `alphaScale` is an extra multiplier
+// on top of that (used by the frame graphic, where cells further from
+// the block's edges fade slightly regardless of heat). Returns the raw
+// {rgb, alpha} pieces rather than a CSS string so SVG callers can set
+// fill/fill-opacity as separate attributes without re-parsing one.
 function heatColorComponents(t, palette, alphaScale) {
 	const stops = palette.stops;
 	let lower = stops[0];
@@ -493,11 +514,18 @@ function heatColorComponents(t, palette, alphaScale) {
 	return { rgb, alpha };
 }
 
+// Same interpolation as heatColorComponents, but packaged as a ready-
+// to-use rgba() string -- for the (more common) case of setting a CSS
+// color property directly instead of separate SVG attributes.
 function heatColor(t, palette, alphaScale) {
 	const { rgb, alpha } = heatColorComponents(t, palette, alphaScale);
 	return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha.toFixed(2)})`;
 }
 
+// Builds the CSS linear-gradient() used for the legend bar, directly
+// from a palette's own stops -- unlike heatColorComponents, this
+// doesn't interpolate between them itself; it hands all the stops to
+// the browser and lets its own gradient rendering do that blending.
 function paletteToCssGradient(palette) {
 	const stops = palette.stops
 		.map((stop) => {
