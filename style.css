@@ -178,6 +178,42 @@ button.btn-primary:hover:not(:disabled) {
  * of the viewport so it's reachable from anywhere on the page. Click a
  * thumbnail to switch palettes — see populatePaletteRail() in app.js.
  */
+.jump-rail {
+	position: fixed;
+	top: 50%;
+	left: 1.25rem;
+	transform: translateY(-50%);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+	padding: 1rem 1.1rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	max-height: 80vh;
+	max-width: 11rem;
+	overflow-y: auto;
+}
+
+.jump-rail a {
+	font-family: "Source Sans 3", sans-serif;
+	font-size: 0.8rem;
+	line-height: 1.4;
+	color: var(--color-text-muted);
+	text-decoration: none;
+}
+
+.jump-rail a:hover {
+	color: var(--color-highlight);
+}
+
+@media (max-width: 1100px) {
+	.jump-rail {
+		display: none;
+	}
+}
+
 .palette-rail {
 	position: fixed;
 	top: 50%;
