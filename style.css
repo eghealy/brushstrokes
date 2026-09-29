@@ -566,6 +566,7 @@ button.btn-primary:hover:not(:disabled) {
 		flex-direction: row;
 		align-items: flex-start;
 		justify-content: center;
+		gap: 2rem;
 	}
 
 	/* The legend's own gradient runs horizontally to match. Scoped with
