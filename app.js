@@ -1005,6 +1005,7 @@ function loadDemo() {
 	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
 	const wordLedger = computeWordLedger(MOCK_REVISIONS);
 	renderHeatmap(sentenceLedger, wordLedger, MOCK_REVISIONS[MOCK_REVISIONS.length - 1]);
+	document.getElementById("doc-title").textContent = "Demo Document";
 	setSourceStatus(`Demo document — ${MOCK_REVISIONS.length} revisions`);
 }
 
@@ -1160,6 +1161,7 @@ async function loadGoogleDoc(fileId) {
 		fetchDocTitle(fileId),
 		fetchRevisionIds(fileId)
 	]);
+	document.getElementById("doc-title").textContent = title;
 
 	if (allRevisionIds.length === 0) {
 		setSourceStatus("No revision history found for this document.");
@@ -1212,6 +1214,14 @@ function openDocPicker() {
 			)
 		)
 		.setCallback((data) => {
+			// The picker's own "Requesting access…" loading status has to be
+			// cleared here on cancel -- otherwise it's left spinning forever
+			// with nothing actually happening, which would make the next
+			// real attempt's loading indicator look like it never changed.
+			if (data.action === google.picker.Action.CANCEL) {
+				setSourceStatus("Pick cancelled — click Connect Google Doc to try again.");
+				return;
+			}
 			if (data.action !== google.picker.Action.PICKED) return;
 			const doc = data.docs[0];
 			const fileId = doc.id;

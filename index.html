@@ -38,15 +38,16 @@
 		-->
 		</details>
 
-		<div class="toolbar">
-			<div class="toolbar-group">
-				<span class="toolbar-group-label">Source</span>
+		<div class="control-card" id="doc-source-card">
+			<h2 class="control-card-heading" id="doc-title">Demo Document</h2>
+			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
+				<span class="mode-label" id="mode-label">No document loaded</span>
 			</div>
+		</div>
 
-			<div class="toolbar-divider" aria-hidden="true"></div>
-
-			<div class="toolbar-group">
+		<div class="control-card">
+			<div class="toolbar">
 				<span class="toolbar-group-label">Style</span>
 				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
 					<button type="button" class="segmented-option" data-mode="word">Word</button>
@@ -54,13 +55,11 @@
 				</div>
 			</div>
 
-			<span class="mode-label" id="mode-label">No document loaded</span>
-		</div>
-
-		<div class="legend" id="legend" hidden>
-			<span class="legend-label">Edited less</span>
-			<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
-			<span class="legend-label">Edited more</span>
+			<div class="legend" id="legend" hidden>
+				<span class="legend-label">Edited less</span>
+				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
+				<span class="legend-label">Edited more</span>
+			</div>
 		</div>
 
 		<div class="canvas">
