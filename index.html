@@ -38,12 +38,16 @@
 		-->
 		</details>
 
-		<div class="control-card" id="doc-source-card">
-			<h2 class="control-card-heading" id="doc-title">Demo Document</h2>
+		<div class="control-card" id="revision-heatmap-card">
+			<h2 class="control-card-heading">Revision Heatmap</h2>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
 				<span class="mode-label" id="mode-label">No document loaded</span>
 			</div>
+
+			<div class="card-divider" role="separator"></div>
+
+			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
 		<div class="control-card">
@@ -60,10 +64,6 @@
 				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
 				<span class="legend-label">Edited more</span>
 			</div>
-		</div>
-
-		<div class="canvas">
-			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
 		<div class="frame-standalone">
@@ -111,8 +111,9 @@
 	<nav class="jump-rail" aria-label="Jump to a section">
 		<span class="jump-rail-title">On this page</span>
 		<a href="#section-art"><span class="jump-rail-number">01.</span> Art and decisionmaking</a>
-		<a href="#section-ai"><span class="jump-rail-number">02.</span> How can writers use A.I., if at all?</a>
-		<a href="#section-privacy"><span class="jump-rail-number">03.</span> Privacy</a>
+		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Revision Heatmap</a>
+		<a href="#section-ai"><span class="jump-rail-number">03.</span> How can writers use A.I., if at all?</a>
+		<a href="#section-privacy"><span class="jump-rail-number">04.</span> Privacy</a>
 	</nav>
 
 	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>

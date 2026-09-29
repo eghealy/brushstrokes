@@ -1005,7 +1005,6 @@ function loadDemo() {
 	const sentenceLedger = computeSentenceLedger(MOCK_REVISIONS);
 	const wordLedger = computeWordLedger(MOCK_REVISIONS);
 	renderHeatmap(sentenceLedger, wordLedger, MOCK_REVISIONS[MOCK_REVISIONS.length - 1]);
-	document.getElementById("doc-title").textContent = "Demo Document";
 	setSourceStatus(`Demo document — ${MOCK_REVISIONS.length} revisions`);
 }
 
@@ -1161,7 +1160,6 @@ async function loadGoogleDoc(fileId) {
 		fetchDocTitle(fileId),
 		fetchRevisionIds(fileId)
 	]);
-	document.getElementById("doc-title").textContent = title;
 
 	if (allRevisionIds.length === 0) {
 		setSourceStatus("No revision history found for this document.");
