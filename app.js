@@ -740,7 +740,7 @@ function layoutWordBlock(words) {
 function renderFrameGraphic(wordLedger, palette) {
 	const pixels = document.getElementById("frame-pixels");
 	const bg = document.getElementById("frame-bg");
-	const downloadBtn = document.getElementById("download-svg-btn");
+	const downloadBtn = document.getElementById("download-frame-btn");
 
 	if (!wordLedger || wordLedger.length === 0) {
 		pixels.innerHTML = "";
@@ -775,25 +775,46 @@ function renderFrameGraphic(wordLedger, palette) {
 	downloadBtn.title = "";
 }
 
+// Export pixel dimensions for an 8.5x11in page at 300dpi.
+const FRAME_EXPORT_DPI = 300;
+const FRAME_EXPORT_WIDTH = 8.5 * FRAME_EXPORT_DPI;
+const FRAME_EXPORT_HEIGHT = 11 * FRAME_EXPORT_DPI;
+
 function downloadFrameGraphic() {
 	const svg = document.getElementById("frame-graphic");
 	const clone = svg.cloneNode(true);
-	clone.setAttribute("width", "8.5in");
-	clone.setAttribute("height", "11in");
+	clone.setAttribute("width", FRAME_EXPORT_WIDTH);
+	clone.setAttribute("height", FRAME_EXPORT_HEIGHT);
 
 	const serialized =
 		`<?xml version="1.0" encoding="UTF-8"?>\n` + new XMLSerializer().serializeToString(clone);
-	const blob = new Blob([serialized], { type: "image/svg+xml" });
-	const url = URL.createObjectURL(blob);
+	const svgBlob = new Blob([serialized], { type: "image/svg+xml" });
+	const svgUrl = URL.createObjectURL(svgBlob);
 
-	const link = document.createElement("a");
-	link.href = url;
-	link.download = "brushstrokes-frame.svg";
-	link.click();
-	URL.revokeObjectURL(url);
+	// Rasterize the SVG (blur filter included) onto a canvas, then export
+	// that as a JPEG -- browsers don't offer a direct SVG-to-JPEG path.
+	const img = new Image();
+	img.onload = () => {
+		const canvas = document.createElement("canvas");
+		canvas.width = FRAME_EXPORT_WIDTH;
+		canvas.height = FRAME_EXPORT_HEIGHT;
+		const ctx = canvas.getContext("2d");
+		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+		URL.revokeObjectURL(svgUrl);
+
+		canvas.toBlob((jpegBlob) => {
+			const jpegUrl = URL.createObjectURL(jpegBlob);
+			const link = document.createElement("a");
+			link.href = jpegUrl;
+			link.download = "brushstrokes-frame.jpg";
+			link.click();
+			URL.revokeObjectURL(jpegUrl);
+		}, "image/jpeg", 0.92);
+	};
+	img.src = svgUrl;
 }
 
-document.getElementById("download-svg-btn").addEventListener("click", downloadFrameGraphic);
+document.getElementById("download-frame-btn").addEventListener("click", downloadFrameGraphic);
 
 // The heatmap's word/sentence spans are rebuilt from scratch on every
 // render (not just recolored in place), so a plain CSS transition on
@@ -1152,11 +1173,10 @@ function openDocPicker() {
 	const picker = new google.picker.PickerBuilder()
 		.setOAuthToken(googleAccessToken)
 		.setDeveloperKey(GOOGLE_API_KEY)
-		.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 		.addView(
-			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS)
-				.setMimeTypes("application/vnd.google-apps.document")
-				.setEnableDrives(true)
+			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS).setMimeTypes(
+				"application/vnd.google-apps.document"
+			)
 		)
 		.setCallback((data) => {
 			if (data.action !== google.picker.Action.PICKED) return;
