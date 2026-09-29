@@ -1074,10 +1074,21 @@ function sleep(ms) {
 // than an ordinary quota 429.
 const MAX_RETRY_ATTEMPTS = 6;
 
+// Files shared via a link (rather than added directly to My Drive) can
+// require a "resource key" -- Drive API v3 returns a generic 404 "File
+// not found" for every request against such a file if this isn't sent,
+// with no indication that a resource key is the actual problem. The
+// Picker hands one back on the picked file when it applies; set here
+// and included on every request below.
+let currentFileId = null;
+let currentResourceKey = null;
+
 async function driveApiFetch(url, attempt = 1) {
-	const response = await fetch(url, {
-		headers: { Authorization: `Bearer ${googleAccessToken}` }
-	});
+	const headers = { Authorization: `Bearer ${googleAccessToken}` };
+	if (currentFileId && currentResourceKey) {
+		headers["X-Goog-Drive-Resource-Keys"] = `${currentFileId}/${currentResourceKey}`;
+	}
+	const response = await fetch(url, { headers });
 
 	if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
 		const retryAfterHeader = response.headers.get("Retry-After");
@@ -1202,7 +1213,10 @@ function openDocPicker() {
 		)
 		.setCallback((data) => {
 			if (data.action !== google.picker.Action.PICKED) return;
-			const fileId = data.docs[0].id;
+			const doc = data.docs[0];
+			const fileId = doc.id;
+			currentFileId = fileId;
+			currentResourceKey = doc.resourceKey || null;
 			loadGoogleDoc(fileId).catch((err) => {
 				console.error("Brushstrokes: failed to load Google Doc", err);
 				setSourceStatus(`Couldn't load that document: ${err.message}`, { error: true });
