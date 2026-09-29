@@ -502,6 +502,26 @@ button.btn-primary:hover:not(:disabled) {
 	transition: opacity 0.25s ease;
 }
 
+.frame-graphic-wrap {
+	position: relative;
+	width: 100%;
+	max-width: 30rem;
+}
+
+.frame-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	background-color: var(--color-panel-bg);
+	border-radius: 0.3em;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: var(--color-text-faint);
+	font-size: 0.85rem;
+}
+
 .painting-reference {
 	display: flex;
 	flex-direction: column;
@@ -609,6 +629,7 @@ button.btn-primary:hover:not(:disabled) {
 	font-size: 1.15rem;
 	font-weight: 700;
 	color: var(--color-text);
+	color: var(--color-highlight);
 	margin: 0 0 1.5rem;
 }
 

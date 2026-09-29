@@ -772,6 +772,19 @@ function layoutWordBlock(words) {
 	return { positioned, lineCount: line + 1 };
 }
 
+// Shown over the frame graphic while a new document is loading, so it
+// never looks like the previous (or demo) doc's frame belongs to
+// whatever's currently being fetched. Callers showing it are
+// responsible for eventually reaching a renderFrameGraphic call (which
+// hides it again) or hiding it themselves on an early exit/error.
+function showFrameLoading() {
+	document.getElementById("frame-loading").hidden = false;
+}
+
+function hideFrameLoading() {
+	document.getElementById("frame-loading").hidden = true;
+}
+
 // A poster-sized (8.5x11in, portrait) pixel mosaic of the most heavily
 // edited ~250-word block in the document, one rect per word. Follows
 // the same Word/Sentence toggle as the document heatmap (see
@@ -780,6 +793,7 @@ function layoutWordBlock(words) {
 // belongs to, so a whole sentence reads as one color even though it's
 // still rendered as individual word-sized cells.
 function renderFrameGraphic(wordLedger, sentenceLedger, palette, variant) {
+	hideFrameLoading();
 	const pixels = document.getElementById("frame-pixels");
 	const bg = document.getElementById("frame-bg");
 	const downloadBtn = document.getElementById("download-frame-btn");
@@ -1091,6 +1105,7 @@ function sortFilesByLastModified(files) {
 async function loadDraftFiles(files) {
 	if (files.length === 0) return;
 
+	showFrameLoading();
 	setSourceStatus(`Reading ${files.length} draft${files.length === 1 ? "" : "s"}…`, { loading: true });
 	const orderedFiles = sortFilesByLastModified(files);
 
@@ -1099,6 +1114,7 @@ async function loadDraftFiles(files) {
 		texts = await Promise.all(orderedFiles.map((file) => extractFileText(file)));
 	} catch (err) {
 		console.error("Brushstrokes: failed to read draft files", err);
+		hideFrameLoading();
 		setSourceStatus(`Couldn't read those files: ${err.message}`, { error: true });
 		return;
 	}
@@ -1279,6 +1295,7 @@ async function fetchRevisionText(fileId, revisionId) {
 }
 
 async function loadGoogleDoc(fileId) {
+	showFrameLoading();
 	setSourceStatus("Fetching revision history…", { loading: true });
 	const [title, allRevisionIds] = await Promise.all([
 		fetchDocTitle(fileId),
@@ -1287,6 +1304,7 @@ async function loadGoogleDoc(fileId) {
 	document.getElementById("doc-title").textContent = title;
 
 	if (allRevisionIds.length === 0) {
+		hideFrameLoading();
 		setSourceStatus("No revision history found for this document.");
 		return;
 	}
@@ -1376,6 +1394,7 @@ function openDocPicker() {
 			currentResourceKey = doc.resourceKey || null;
 			loadGoogleDoc(fileId).catch((err) => {
 				console.error("Brushstrokes: failed to load Google Doc", err);
+				hideFrameLoading();
 				const accountNote = currentAccountEmail ? ` (signed in as ${currentAccountEmail})` : "";
 				setSourceStatus(`Couldn't load that document${accountNote}: ${err.message}`, { error: true });
 			});
