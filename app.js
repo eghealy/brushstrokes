@@ -509,15 +509,43 @@ function paletteToCssGradient(palette) {
 	return `linear-gradient(90deg, ${stops})`;
 }
 
-function showFootnote(entry, kind) {
-	const label = document.getElementById("footnote-label");
-	const content = document.getElementById("footnote-content");
+// Keeps the popout on-screen horizontally, and flips it above the
+// hovered word instead of below when that word sits in the bottom
+// half of the viewport (mirrors the palette rail's preview clamping).
+const WORD_FOOTNOTE_PREVIEW_WIDTH = 320;
+const WORD_FOOTNOTE_PREVIEW_EDGE_MARGIN = 16;
+const WORD_FOOTNOTE_PREVIEW_GAP = 10;
+
+function positionWordFootnotePreview(targetRect) {
+	const preview = document.getElementById("word-footnote-preview");
+
+	let left = Math.min(
+		targetRect.left,
+		window.innerWidth - WORD_FOOTNOTE_PREVIEW_WIDTH - WORD_FOOTNOTE_PREVIEW_EDGE_MARGIN
+	);
+	left = Math.max(left, WORD_FOOTNOTE_PREVIEW_EDGE_MARGIN);
+	preview.style.left = `${left}px`;
+
+	const showAbove = targetRect.top > window.innerHeight / 2;
+	if (showAbove) {
+		preview.style.bottom = `${window.innerHeight - targetRect.top + WORD_FOOTNOTE_PREVIEW_GAP}px`;
+		preview.style.top = "auto";
+	} else {
+		preview.style.top = `${targetRect.bottom + WORD_FOOTNOTE_PREVIEW_GAP}px`;
+		preview.style.bottom = "auto";
+	}
+}
+
+function showWordFootnotePreview(entry, kind, targetEl) {
+	const preview = document.getElementById("word-footnote-preview");
+	const label = document.getElementById("word-footnote-preview-label");
+	const content = document.getElementById("word-footnote-preview-content");
 	const priorVersions = entry.history.slice(0, -1);
 
 	label.textContent = kind === "word" ? `Earlier drafts of "${entry.text}"` : "Earlier drafts of this sentence";
 
+	content.innerHTML = "";
 	if (priorVersions.length === 0) {
-		content.innerHTML = "";
 		const placeholder = document.createElement("p");
 		placeholder.className = "footnote-placeholder";
 		placeholder.textContent =
@@ -525,29 +553,23 @@ function showFootnote(entry, kind) {
 				? "This word hasn't changed since it first appeared."
 				: "This sentence hasn't changed since it first appeared.";
 		content.appendChild(placeholder);
-		return;
+	} else {
+		const list = document.createElement("ol");
+		list.className = "footnote-list";
+		priorVersions.forEach((text) => {
+			const li = document.createElement("li");
+			li.textContent = text;
+			list.appendChild(li);
+		});
+		content.appendChild(list);
 	}
 
-	content.innerHTML = "";
-	const list = document.createElement("ol");
-	list.className = "footnote-list";
-	priorVersions.forEach((text) => {
-		const li = document.createElement("li");
-		li.textContent = text;
-		list.appendChild(li);
-	});
-	content.appendChild(list);
+	positionWordFootnotePreview(targetEl.getBoundingClientRect());
+	preview.classList.add("visible");
 }
 
-function resetFootnote() {
-	const label = document.getElementById("footnote-label");
-	const content = document.getElementById("footnote-content");
-	label.textContent = "Footnote";
-	content.innerHTML = "";
-	const placeholder = document.createElement("p");
-	placeholder.className = "footnote-placeholder";
-	placeholder.textContent = "Hover a word or sentence to see how it read in earlier drafts.";
-	content.appendChild(placeholder);
+function hideWordFootnotePreview() {
+	document.getElementById("word-footnote-preview").classList.remove("visible");
 }
 
 // Groups a flat sentence ledger back into per-paragraph chunks, using the
@@ -615,8 +637,8 @@ function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, fin
 				}
 				wordSpan.title = `"${wordEntry.text}" edited ${wordEntry.count} time${wordEntry.count === 1 ? "" : "s"}`;
 				wordSpan.textContent = wordEntry.text;
-				wordSpan.addEventListener("mouseenter", () => showFootnote(wordEntry, "word"));
-				wordSpan.addEventListener("mouseleave", resetFootnote);
+				wordSpan.addEventListener("mouseenter", () => showWordFootnotePreview(wordEntry, "word", wordSpan));
+				wordSpan.addEventListener("mouseleave", hideWordFootnotePreview);
 				sentenceSpan.appendChild(wordSpan);
 				if (wordIdx < wordEntries.length - 1) sentenceSpan.appendChild(document.createTextNode(" "));
 			});
@@ -644,8 +666,8 @@ function renderSentenceLevelHeatmap(sentenceLedger, palette, output, finalText) 
 			sentenceSpan.style.backgroundColor = heatColor(normalized, palette);
 			sentenceSpan.title = `Edited ${sentenceEntry.count} time${sentenceEntry.count === 1 ? "" : "s"}`;
 			sentenceSpan.textContent = sentenceEntry.text;
-			sentenceSpan.addEventListener("mouseenter", () => showFootnote(sentenceEntry, "sentence"));
-			sentenceSpan.addEventListener("mouseleave", resetFootnote);
+			sentenceSpan.addEventListener("mouseenter", () => showWordFootnotePreview(sentenceEntry, "sentence", sentenceSpan));
+			sentenceSpan.addEventListener("mouseleave", hideWordFootnotePreview);
 			output.appendChild(sentenceSpan);
 			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
@@ -661,7 +683,7 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 	const palette = PALETTES[currentPaletteKey];
 	const output = document.getElementById("doc-output");
 	output.innerHTML = "";
-	resetFootnote();
+	hideWordFootnotePreview();
 
 	if (currentAnalysisMode === "sentence") {
 		renderSentenceLevelHeatmap(sentenceLedger, palette, output, currentFinalText);
@@ -1052,10 +1074,21 @@ function sleep(ms) {
 // than an ordinary quota 429.
 const MAX_RETRY_ATTEMPTS = 6;
 
+// Files shared via a link (rather than added directly to My Drive) can
+// require a "resource key" -- Drive API v3 returns a generic 404 "File
+// not found" for every request against such a file if this isn't sent,
+// with no indication that a resource key is the actual problem. The
+// Picker hands one back on the picked file when it applies; set here
+// and included on every request below.
+let currentFileId = null;
+let currentResourceKey = null;
+
 async function driveApiFetch(url, attempt = 1) {
-	const response = await fetch(url, {
-		headers: { Authorization: `Bearer ${googleAccessToken}` }
-	});
+	const headers = { Authorization: `Bearer ${googleAccessToken}` };
+	if (currentFileId && currentResourceKey) {
+		headers["X-Goog-Drive-Resource-Keys"] = `${currentFileId}/${currentResourceKey}`;
+	}
+	const response = await fetch(url, { headers });
 
 	if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
 		const retryAfterHeader = response.headers.get("Retry-After");
@@ -1180,7 +1213,10 @@ function openDocPicker() {
 		)
 		.setCallback((data) => {
 			if (data.action !== google.picker.Action.PICKED) return;
-			const fileId = data.docs[0].id;
+			const doc = data.docs[0];
+			const fileId = doc.id;
+			currentFileId = fileId;
+			currentResourceKey = doc.resourceKey || null;
 			loadGoogleDoc(fileId).catch((err) => {
 				console.error("Brushstrokes: failed to load Google Doc", err);
 				setSourceStatus(`Couldn't load that document: ${err.message}`, { error: true });

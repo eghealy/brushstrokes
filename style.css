@@ -352,7 +352,7 @@ button.btn-primary:hover:not(:disabled) {
 		width: 12rem;
 	}
 
-	.footnote-hover-panel {
+	.word-footnote-preview {
 		display: none;
 	}
 }
@@ -392,6 +392,36 @@ button.btn-primary:hover:not(:disabled) {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+/*
+ * Pop-out shown near a word or sentence on hover, with its earlier
+ * drafts -- same show/hide pattern as the palette rail's preview, but
+ * anchored to the hovered span's position instead of a fixed rail, and
+ * flipped above/below in JS depending on where that span sits.
+ */
+.word-footnote-preview {
+	position: fixed;
+	top: 0;
+	width: 20rem;
+	max-width: 90vw;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding: 1rem 1.1rem;
+	border-radius: 0.6rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+	z-index: 150;
+	opacity: 0;
+	transform: scale(0.97);
+	pointer-events: none;
+	transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.word-footnote-preview.visible {
+	opacity: 1;
+	transform: scale(1);
 }
 
 .legend {

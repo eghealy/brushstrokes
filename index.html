@@ -67,13 +67,6 @@
 			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
-		<section class="footnote-panel footnote-hover-panel" aria-live="polite">
-			<span class="footnote-label" id="footnote-label">Footnote</span>
-			<div class="footnote-content" id="footnote-content">
-				<p class="footnote-placeholder">Hover a word or sentence to see how it has evolved over time.</p>
-			</div>
-		</section>
-
 		<div class="frame-standalone">
 			<span class="frame-label">Frame &mdash; most-edited 250 words</span>
 			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word, colored by how much that word was edited">
@@ -127,6 +120,11 @@
 
 	<div class="palette-preview" id="palette-preview" aria-hidden="true">
 		<img id="palette-preview-image" src="" alt="">
+	</div>
+
+	<div class="word-footnote-preview" id="word-footnote-preview" aria-hidden="true">
+		<span class="footnote-label" id="word-footnote-preview-label">Footnote</span>
+		<div id="word-footnote-preview-content"></div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
