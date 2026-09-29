@@ -676,7 +676,11 @@ function renderSentenceLevelHeatmap(sentenceLedger, palette, output, finalText) 
 	});
 }
 
-function renderHeatmap(sentenceLedger, wordLedger, finalText) {
+// updateFrame is false during progressive loading (see loadGoogleDoc)
+// -- the frame graphic shows the single most-edited 250-word block,
+// which shifts as more revisions come in, so it only gets (re)drawn
+// once the full revision set has loaded, not on every partial update.
+function renderHeatmap(sentenceLedger, wordLedger, finalText, { updateFrame = true } = {}) {
 	currentSentenceLedger = sentenceLedger;
 	currentWordLedger = wordLedger;
 	if (finalText !== undefined) currentFinalText = finalText;
@@ -694,7 +698,7 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText) {
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
 	document.getElementById("legend").hidden = false;
 
-	renderFrameGraphic(wordLedger, palette);
+	if (updateFrame) renderFrameGraphic(wordLedger, palette);
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -1174,11 +1178,29 @@ async function loadGoogleDoc(fileId) {
 		return;
 	}
 
+	// Disabled for the duration of the load -- otherwise, if a document
+	// was already loaded, its (now stale) frame graphic would stay
+	// downloadable while the heatmap behind it updates to the new doc.
+	const downloadBtn = document.getElementById("download-frame-btn");
+	downloadBtn.disabled = true;
+	downloadBtn.title = "Loading document…";
+
 	const sampledIds = sampleEvenly(allRevisionIds, MAX_REVISIONS_TO_FETCH);
 	const texts = [];
 	for (let i = 0; i < sampledIds.length; i++) {
 		setSourceStatus(`Fetching revision ${i + 1} of ${sampledIds.length}…`, { loading: true });
 		texts.push(await fetchRevisionText(fileId, sampledIds[i]));
+
+		// Render as each revision arrives instead of waiting for all of
+		// them -- the heatmap is already visible and updating well before
+		// a large document finishes fetching. The frame graphic is left
+		// alone here (updateFrame: false): it shows the single
+		// most-edited 250-word block, which shifts as more revisions
+		// come in, so it's only drawn once from the complete set below.
+		renderHeatmap(computeSentenceLedger(texts), computeWordLedger(texts), texts[texts.length - 1], {
+			updateFrame: false
+		});
+
 		// Small pause between revisions — each one is two requests to
 		// Google's export endpoints, which rate-limit bursts more
 		// aggressively than the main Drive API. Pacing them out avoids
