@@ -472,3 +472,43 @@ button.btn-primary:hover:not(:disabled) {
 .content-card p + p {
 	margin-top: 1rem;
 }
+
+.content-card summary {
+	cursor: pointer;
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.content-card summary::-webkit-details-marker {
+	display: none;
+}
+
+.content-card summary::marker {
+	content: "";
+}
+
+.content-card summary h2 {
+	margin: 0;
+}
+
+.content-card summary::after {
+	content: "";
+	flex-shrink: 0;
+	width: 0.55em;
+	height: 0.55em;
+	border-right: 2px solid var(--color-text-faint);
+	border-bottom: 2px solid var(--color-text-faint);
+	transform: rotate(45deg);
+	transition: transform 0.2s ease;
+}
+
+.content-card[open] summary::after {
+	transform: rotate(-135deg);
+}
+
+.content-card summary:hover h2 {
+	color: var(--color-highlight);
+}
