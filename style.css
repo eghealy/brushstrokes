@@ -516,6 +516,7 @@ button.btn-primary:hover:not(:disabled) {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
+	margin-bottom: 0.75rem;
 }
 
 .content-card summary::-webkit-details-marker {
