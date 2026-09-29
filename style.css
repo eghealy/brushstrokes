@@ -533,7 +533,7 @@ button.btn-primary:hover:not(:disabled) {
 .frame-loading {
 	position: absolute;
 	inset: 0;
-	display: flex;
+	display: none;
 	align-items: center;
 	justify-content: center;
 	gap: 0.4rem;
@@ -542,6 +542,13 @@ button.btn-primary:hover:not(:disabled) {
 	border: 1px solid rgba(255, 255, 255, 0.12);
 	color: var(--color-text-faint);
 	font-size: 0.85rem;
+}
+
+/* display:flex on the bare class would beat the browser's default
+   [hidden] { display: none }, since author rules always win at equal
+   specificity -- this keeps it hidden until JS clears the attribute. */
+.frame-loading:not([hidden]) {
+	display: flex;
 }
 
 .painting-reference {
