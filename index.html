@@ -38,6 +38,22 @@
 		-->
 		</details>
 
+		<div class="control-card" id="style-card">
+			<div class="toolbar">
+				<span class="toolbar-group-label">Style</span>
+				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
+					<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
+					<button type="button" class="segmented-option" data-mode="word">Word</button>
+				</div>
+			</div>
+
+			<div class="legend" id="legend" hidden>
+				<span class="legend-label">Edited less</span>
+				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
+				<span class="legend-label">Edited more</span>
+			</div>
+		</div>
+
 		<div class="control-card" id="revision-heatmap-card">
 			<h2 class="control-card-heading">Revision Heatmap</h2>
 			<div class="toolbar">
@@ -51,25 +67,9 @@
 			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
-		<div class="control-card">
-			<div class="toolbar">
-				<span class="toolbar-group-label">Style</span>
-				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
-					<button type="button" class="segmented-option" data-mode="word">Word</button>
-					<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
-				</div>
-			</div>
-
-			<div class="legend" id="legend" hidden>
-				<span class="legend-label">Edited less</span>
-				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
-				<span class="legend-label">Edited more</span>
-			</div>
-		</div>
-
 		<div class="frame-standalone" id="section-frame">
-			<span class="frame-label">Frame &mdash; most-edited 250 words</span>
-			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word, colored by how much that word was edited">
+			<span class="frame-label" id="frame-label">Frame &mdash; most-edited 250 words</span>
+			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word or sentence depending on the current style, colored by how much it was edited">
 				<defs>
 					<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
 						<feGaussianBlur stdDeviation="4"></feGaussianBlur>

@@ -287,7 +287,7 @@ const PALETTES = {
 };
 
 const DEFAULT_PALETTE_KEY = "johnLurie";
-const DEFAULT_ANALYSIS_MODE = "word";
+const DEFAULT_ANALYSIS_MODE = "sentence";
 let currentPaletteKey = DEFAULT_PALETTE_KEY;
 let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
 let currentSentenceLedger = null;
@@ -649,7 +649,7 @@ function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, fin
 			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
 
-		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n"));
 	});
 }
 
@@ -672,7 +672,7 @@ function renderSentenceLevelHeatmap(sentenceLedger, palette, output, finalText) 
 			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
 
-		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n"));
 	});
 }
 
@@ -698,7 +698,7 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText, { updateFrame = tr
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
 	document.getElementById("legend").hidden = false;
 
-	if (updateFrame) renderFrameGraphic(wordLedger, palette);
+	if (updateFrame) renderFrameGraphic(wordLedger, sentenceLedger, palette, currentAnalysisMode);
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -714,9 +714,11 @@ const CHAR_WIDTH = PAGE_WIDTH / CHARS_PER_LINE;
 
 // Finds the WORD_WINDOW_SIZE-word block (by document order) with the
 // highest total edit count, via an O(n) sliding-window sum. Shorter
-// documents just use every word they have.
+// documents just use every word they have. Returns startIndex alongside
+// the slice so callers can map each word back to other per-word data
+// (e.g. which sentence it belongs to) at the same global position.
 function findMostChangedWordBlock(wordLedger) {
-	if (wordLedger.length <= WORD_WINDOW_SIZE) return wordLedger;
+	if (wordLedger.length <= WORD_WINDOW_SIZE) return { words: wordLedger, startIndex: 0 };
 
 	let windowSum = 0;
 	for (let i = 0; i < WORD_WINDOW_SIZE; i++) windowSum += wordLedger[i].count;
@@ -732,7 +734,19 @@ function findMostChangedWordBlock(wordLedger) {
 		}
 	}
 
-	return wordLedger.slice(bestStart, bestStart + WORD_WINDOW_SIZE);
+	return { words: wordLedger.slice(bestStart, bestStart + WORD_WINDOW_SIZE), startIndex: bestStart };
+}
+
+// Maps every word (by global index, same order as a word ledger) to the
+// sentence entry it belongs to -- used to color the sentence-level frame
+// variant by each word's containing sentence rather than its own count.
+function buildWordToSentenceMap(sentenceLedger) {
+	const map = [];
+	sentenceLedger.forEach((sentenceEntry) => {
+		const wordsInSentence = splitWords(sentenceEntry.text).length;
+		for (let i = 0; i < wordsInSentence; i++) map.push(sentenceEntry);
+	});
+	return map;
 }
 
 // Word-wraps a block of words at CHARS_PER_LINE (the same greedy wrap a
@@ -759,14 +773,20 @@ function layoutWordBlock(words) {
 }
 
 // A poster-sized (8.5x11in, portrait) pixel mosaic of the most heavily
-// edited ~250-word block in the document — one rect per word, colored
-// by that word's heat and positioned to match its real (line, column)
-// within the block, then blurred (via an SVG filter) so neighboring
-// cells blend into each other instead of reading as hard-edged tiles.
-function renderFrameGraphic(wordLedger, palette) {
+// edited ~250-word block in the document, one rect per word. Follows
+// the same Word/Sentence toggle as the document heatmap (see
+// renderHeatmap): in "word" mode each rect is colored by that word's
+// own edit count, in "sentence" mode by the count of the sentence it
+// belongs to, so a whole sentence reads as one color even though it's
+// still rendered as individual word-sized cells.
+function renderFrameGraphic(wordLedger, sentenceLedger, palette, variant) {
 	const pixels = document.getElementById("frame-pixels");
 	const bg = document.getElementById("frame-bg");
 	const downloadBtn = document.getElementById("download-frame-btn");
+	document.getElementById("frame-label").textContent =
+		variant === "sentence"
+			? "Frame — most-edited 250 words, colored by sentence"
+			: "Frame — most-edited 250 words, colored by word";
 
 	if (!wordLedger || wordLedger.length === 0) {
 		pixels.innerHTML = "";
@@ -777,14 +797,26 @@ function renderFrameGraphic(wordLedger, palette) {
 
 	bg.setAttribute("fill", palette.background || "#0A2243");
 
-	const block = findMostChangedWordBlock(wordLedger);
+	const { words: block, startIndex } = findMostChangedWordBlock(wordLedger);
 	const { positioned, lineCount } = layoutWordBlock(block);
 	const lineHeight = PAGE_HEIGHT / lineCount;
-	const maxCount = Math.max(...wordLedger.map((entry) => entry.count), 1);
+
+	const wordToSentence = variant === "sentence" ? buildWordToSentenceMap(sentenceLedger) : null;
+	const maxCount =
+		variant === "sentence"
+			? Math.max(...sentenceLedger.map((entry) => entry.count), 1)
+			: Math.max(...wordLedger.map((entry) => entry.count), 1);
 
 	pixels.innerHTML = "";
-	positioned.forEach(({ entry, line, startCol, wordLen }) => {
-		const normalized = maxCount > 1 ? (entry.count - 1) / (maxCount - 1) : 0;
+	positioned.forEach(({ entry, line, startCol, wordLen }, i) => {
+		// Falls back to the word's own entry if there's no mapped sentence
+		// at this position -- real-world text can occasionally trip up the
+		// regex-based sentence splitter (abbreviations, ellipses, unusual
+		// punctuation) so its word count doesn't perfectly match the plain
+		// word ledger's. Better to color that one cell slightly wrong than
+		// throw and leave the rest of the canvas unpainted.
+		const heatSource = (variant === "sentence" && wordToSentence[startIndex + i]) || entry;
+		const normalized = maxCount > 1 ? (heatSource.count - 1) / (maxCount - 1) : 0;
 		const { rgb, alpha } = heatColorComponents(normalized, palette);
 
 		const rect = document.createElementNS(SVG_NS, "rect");
@@ -806,8 +838,8 @@ const FRAME_EXPORT_DPI = 300;
 const FRAME_EXPORT_WIDTH = 8.5 * FRAME_EXPORT_DPI;
 const FRAME_EXPORT_HEIGHT = 11 * FRAME_EXPORT_DPI;
 
-function downloadFrameGraphic() {
-	const svg = document.getElementById("frame-graphic");
+function downloadFrameGraphic(svgId, filename) {
+	const svg = document.getElementById(svgId);
 	const clone = svg.cloneNode(true);
 	clone.setAttribute("width", FRAME_EXPORT_WIDTH);
 	clone.setAttribute("height", FRAME_EXPORT_HEIGHT);
@@ -832,7 +864,7 @@ function downloadFrameGraphic() {
 			const jpegUrl = URL.createObjectURL(jpegBlob);
 			const link = document.createElement("a");
 			link.href = jpegUrl;
-			link.download = "brushstrokes-frame.jpg";
+			link.download = filename;
 			link.click();
 			URL.revokeObjectURL(jpegUrl);
 		}, "image/jpeg", 0.92);
@@ -840,7 +872,9 @@ function downloadFrameGraphic() {
 	img.src = svgUrl;
 }
 
-document.getElementById("download-frame-btn").addEventListener("click", downloadFrameGraphic);
+document.getElementById("download-frame-btn").addEventListener("click", () => {
+	downloadFrameGraphic("frame-graphic", `brushstrokes-frame-${currentAnalysisMode}.jpg`);
+});
 
 // The heatmap's word/sentence spans are rebuilt from scratch on every
 // render (not just recolored in place), so a plain CSS transition on
