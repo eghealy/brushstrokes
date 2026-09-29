@@ -38,12 +38,16 @@
 		-->
 		</details>
 
-		<div class="control-card" id="doc-source-card">
-			<h2 class="control-card-heading" id="doc-title">Demo Document</h2>
+		<div class="control-card" id="revision-heatmap-card">
+			<h2 class="control-card-heading">Revision Heatmap</h2>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
 				<span class="mode-label" id="mode-label">No document loaded</span>
 			</div>
+
+			<div class="card-divider" role="separator"></div>
+
+			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
 		<div class="control-card">
@@ -62,11 +66,7 @@
 			</div>
 		</div>
 
-		<div class="canvas">
-			<article id="doc-output" class="doc-output" aria-live="polite"></article>
-		</div>
-
-		<div class="frame-standalone">
+		<div class="frame-standalone" id="section-frame">
 			<span class="frame-label">Frame &mdash; most-edited 250 words</span>
 			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word, colored by how much that word was edited">
 				<defs>
@@ -111,8 +111,10 @@
 	<nav class="jump-rail" aria-label="Jump to a section">
 		<span class="jump-rail-title">On this page</span>
 		<a href="#section-art"><span class="jump-rail-number">01.</span> Art and decisionmaking</a>
-		<a href="#section-ai"><span class="jump-rail-number">02.</span> How can writers use A.I., if at all?</a>
-		<a href="#section-privacy"><span class="jump-rail-number">03.</span> Privacy</a>
+		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Revision Heatmap</a>
+		<a href="#section-frame"><span class="jump-rail-number">03.</span> Frame</a>
+		<a href="#section-ai"><span class="jump-rail-number">04.</span> How can writers use A.I., if at all?</a>
+		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
 	</nav>
 
 	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>
