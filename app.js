@@ -958,12 +958,12 @@ const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 // fetching (and diffing) every single one, sample down to this many,
 // evenly spaced across the full history, so the heatmap still reflects
 // the whole arc of the document without hammering the API.
-const MAX_REVISIONS_TO_FETCH = 40;
+const MAX_REVISIONS_TO_FETCH = 25;
 
 // Pause between each revision fetch to avoid bursting Google's export
 // endpoints, which rate-limit (HTTP 429) more aggressively than the
 // main Drive REST API.
-const REVISION_FETCH_PACING_MS = 150;
+const REVISION_FETCH_PACING_MS = 500;
 
 let googleTokenClient = null;
 let googleAccessToken = null;
@@ -990,7 +990,11 @@ function sleep(ms) {
 // aggressively than the main Drive REST API. A 429 here is expected
 // occasionally on larger documents, not a hard failure — retry with
 // backoff (honoring Retry-After if Google sends one) before giving up.
-const MAX_RETRY_ATTEMPTS = 4;
+// A 429 whose body is HTML rather than JSON is Google's general
+// automated-traffic block, not a normal per-request quota error — that
+// signal means "back off hard," so it gets a much longer minimum wait
+// than an ordinary quota 429.
+const MAX_RETRY_ATTEMPTS = 6;
 
 async function driveApiFetch(url, attempt = 1) {
 	const response = await fetch(url, {
@@ -999,7 +1003,11 @@ async function driveApiFetch(url, attempt = 1) {
 
 	if (response.status === 429 && attempt < MAX_RETRY_ATTEMPTS) {
 		const retryAfterHeader = response.headers.get("Retry-After");
-		const waitMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 800 * 2 ** (attempt - 1);
+		const contentType = response.headers.get("Content-Type") || "";
+		const isAbuseBlock = contentType.includes("text/html");
+		const waitMs = retryAfterHeader
+			? Number(retryAfterHeader) * 1000
+			: Math.min((isAbuseBlock ? 4000 : 800) * 2 ** (attempt - 1), 20000);
 		setSourceStatus(`Google is rate-limiting requests — retrying in ${Math.ceil(waitMs / 1000)}s…`);
 		await sleep(waitMs);
 		return driveApiFetch(url, attempt + 1);
