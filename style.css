@@ -402,6 +402,11 @@ button.btn-primary:hover:not(:disabled) {
 	scroll-behavior: smooth;
 	flex: 1 1 auto;
 	min-height: 0;
+	/* Explicit cap, not just flex-shrink -- guarantees the list is
+	   actually scrollable (and the carets have something to do)
+	   regardless of how much vertical space the viewport happens to
+	   leave for .right-rail-group. */
+	max-height: 20rem;
 }
 
 .palette-rail-item {
@@ -546,7 +551,8 @@ button.btn-primary:hover:not(:disabled) {
 }
 
 .legend .rail-title {
-	align-self: flex-start;
+	align-self: stretch;
+	width: 100%;
 	text-align: left;
 }
 

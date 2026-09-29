@@ -5,13 +5,13 @@
  * the heat gradient work.
  */
 const MOCK_REVISIONS = [
-	"The garden was quiet in the early morning. Birds moved between the trees.\nA gate stood at the far end of the path.",
-	"The garden was quiet in the early morning light. Birds moved between the trees, calling to each other.\nA gate stood at the far end of the path.",
-	"The garden sat quiet under the early morning light. Birds moved between the trees, calling to each other.\nA gate stood rusted at the far end of the path.",
-	"The garden sat quiet under a pale morning light. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path.",
-	"The garden sat still under a pale morning light. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path, half open.",
-	"The garden sat still under a pale morning light, dew still clinging to the grass. Birds darted between the trees, calling to each other.\nA rusted gate marked the far end of the path, half open.",
-	"The garden sat still under a pale morning light, dew clinging to the grass. Birds darted between the trees, calling to one another in the cold air.\nA rusted gate marked the far end of the path, half open, waiting."
+	"She knew there was nothing left to be done. There she was, at a dead-end road. The police behind her, waiting. She was content knowing that she had fought until the end.",
+	"Robin knew there was nothing left to be done. There she stood, at the end of a dead-end road. The police behind her, waiting. She was content knowing that she had fought until the end.",
+	"Robin knew there was nothing left to be done. She crouched, brambles tugging at her socks, at the end of a cul-de-sac. The police behind her, waiting. She was content knowing that she had fought until the end.",
+	"Robin knew there was nothing left to be done. She crouched in a shallow culvert, brambles tugging at her socks, at the end of the cul-de-sac. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the end.",
+	"Robin knew it was over. She crouched in a shallow culvert, brambles tugging at her slacks, at the end of the cul-de-sac. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end.",
+	"Robin knew it was over. She crouched in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks. The police barricade spilled from the street into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end.",
+	"Robin closed her eyes. She knew it was over. Crouching in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks, sirens and megaphones bleating all around. The police barricade spilled from the street into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end."
 ];
 
 // Splits on line breaks (one or more), so paragraph structure from the
