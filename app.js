@@ -1265,7 +1265,12 @@ document.getElementById("connect-doc-btn").addEventListener("click", () => {
 		return;
 	}
 	setSourceStatus("Requesting access…", { loading: true });
-	googleTokenClient.requestAccessToken();
+	// Forces the account chooser every time, instead of silently reusing
+	// whichever account last authorized this app. Without this, picking a
+	// different account inside the Picker's own account switcher doesn't
+	// change which account the access token belongs to -- so every Drive
+	// API call 404s against a file the token's original account can't see.
+	googleTokenClient.requestAccessToken({ prompt: "select_account" });
 });
 
 waitFor(
