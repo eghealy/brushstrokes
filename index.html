@@ -41,7 +41,7 @@
 		<div class="control-card" id="revision-heatmap-card">
 			<h2 class="control-card-heading">Record</h2>
 			<p>Upload drafts to visualize how your work has evolved over time. A Google Doc's revision history can be enlightening, or upload multiple draft files of the same piece to create your own history.</p>
-			<p>Use the floating adjustments panel on the right to adjust the record. Choose a fine-art inspired color palette or toggle between sentence and word-level granularity.</p>
+			<p>Adjust the record using the floating panels on the right. Choose a fine-art inspired color palette or toggle between sentence and word-level granularity.</p>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
 				<button type="button" id="upload-drafts-btn" class="btn btn-primary">Upload Drafts</button>
@@ -104,31 +104,45 @@
 		</details>
 	</main>
 
-	<div class="left-rail-group">
-		<nav class="jump-rail" aria-label="Jump to a section">
-			<span class="jump-rail-title">On this page</span>
-			<a href="#section-art"><span class="jump-rail-number">01.</span> Decision-making</a>
-			<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Record</a>
-			<a href="#section-frame"><span class="jump-rail-number">03.</span> Framing</a>
-			<a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
-			<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
+	<nav class="jump-rail" aria-label="Jump to a section">
+		<span class="rail-title">On this page</span>
+		<a href="#section-art"><span class="jump-rail-number">01.</span> Decision-making</a>
+		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Record</a>
+		<a href="#section-frame"><span class="jump-rail-number">03.</span> Framing</a>
+		<a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
+		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
+	</nav>
+
+	<div class="right-rail-group">
+		<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette">
+			<span class="rail-title">Palette</span>
+			<button type="button" class="palette-rail-scroll-btn palette-rail-scroll-up" id="palette-scroll-up" aria-label="Scroll palettes up"></button>
+			<div class="palette-rail-list" id="palette-rail-list"></div>
+			<button type="button" class="palette-rail-scroll-btn palette-rail-scroll-down" id="palette-scroll-down" aria-label="Scroll palettes down"></button>
 		</nav>
 
 		<div class="style-rail" id="style-rail" role="group" aria-label="Style and edit-heat legend">
-			<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
-				<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
-				<button type="button" class="segmented-option" data-mode="word">Word</button>
+			<span class="rail-title">Adjustments</span>
+
+			<div class="radio-group" id="analysis-toggle" role="radiogroup" aria-label="Analysis mode">
+				<label class="radio-option">
+					<input type="radio" name="analysis-mode" value="sentence" checked>
+					Sentence
+				</label>
+				<label class="radio-option">
+					<input type="radio" name="analysis-mode" value="word">
+					Word
+				</label>
 			</div>
 
 			<div class="legend" id="legend" hidden>
+				<span class="rail-title">Legend</span>
 				<span class="legend-label">Edited less</span>
 				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
 				<span class="legend-label">Edited more</span>
 			</div>
 		</div>
 	</div>
-
-	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>
 
 	<div class="palette-preview" id="palette-preview" aria-hidden="true">
 		<img id="palette-preview-image" src="" alt="">

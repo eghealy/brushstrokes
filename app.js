@@ -946,8 +946,8 @@ function fadeToRerenderedHeatmap() {
 }
 
 function setActivePaletteRailItem(key) {
-	const rail = document.getElementById("palette-rail");
-	Array.from(rail.children).forEach((btn) => {
+	const list = document.getElementById("palette-rail-list");
+	Array.from(list.children).forEach((btn) => {
 		btn.classList.toggle("active", btn.dataset.paletteKey === key);
 	});
 }
@@ -978,7 +978,7 @@ function hidePalettePreview() {
 }
 
 function populatePaletteRail() {
-	const rail = document.getElementById("palette-rail");
+	const list = document.getElementById("palette-rail-list");
 	Object.entries(PALETTES).forEach(([key, palette]) => {
 		const label = palette.imageTitle ? `${palette.imageTitle}, ${palette.label}` : palette.label;
 
@@ -1001,7 +1001,7 @@ function populatePaletteRail() {
 			currentPaletteKey = key;
 			applyPaletteTheme(PALETTES[currentPaletteKey]);
 			setActivePaletteRailItem(key);
-			Array.from(rail.children).forEach((otherBtn) => {
+			Array.from(list.children).forEach((otherBtn) => {
 				otherBtn.setAttribute("aria-pressed", otherBtn === btn ? "true" : "false");
 			});
 			if (currentSentenceLedger && currentWordLedger) {
@@ -1014,10 +1014,38 @@ function populatePaletteRail() {
 		btn.addEventListener("focus", () => showPalettePreview(palette, btn));
 		btn.addEventListener("blur", hidePalettePreview);
 
-		rail.appendChild(btn);
+		list.appendChild(btn);
 	});
 
 	setActivePaletteRailItem(currentPaletteKey);
+	initPaletteRailScrollButtons();
+}
+
+// Caret buttons scroll the thumbnail list in place of a visible native
+// scrollbar. Each click moves by roughly two thumbnails' worth; buttons
+// disable themselves at either end so it's clear when there's nothing
+// more to scroll to.
+const PALETTE_RAIL_SCROLL_AMOUNT = 120;
+
+function initPaletteRailScrollButtons() {
+	const list = document.getElementById("palette-rail-list");
+	const upBtn = document.getElementById("palette-scroll-up");
+	const downBtn = document.getElementById("palette-scroll-down");
+
+	function updateButtonStates() {
+		upBtn.disabled = list.scrollTop <= 0;
+		downBtn.disabled = list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+	}
+
+	upBtn.addEventListener("click", () => {
+		list.scrollBy({ top: -PALETTE_RAIL_SCROLL_AMOUNT, behavior: "smooth" });
+	});
+	downBtn.addEventListener("click", () => {
+		list.scrollBy({ top: PALETTE_RAIL_SCROLL_AMOUNT, behavior: "smooth" });
+	});
+	list.addEventListener("scroll", updateButtonStates);
+
+	updateButtonStates();
 }
 
 function initAnalysisToggle() {
