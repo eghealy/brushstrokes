@@ -449,12 +449,6 @@ function applyPaletteTheme(palette) {
 	const root = document.documentElement.style;
 	Object.entries(theme).forEach(([prop, value]) => root.setProperty(prop, value));
 
-	// Re-tint the dropdown caret to match the new muted-text color.
-	const caretSvg =
-		`data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6">` +
-		`<path d="M1 1l4 4 4-4" fill="none" stroke="${encodeURIComponent(theme["--color-text-muted"])}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-	root.setProperty("--select-caret", `url('${caretSvg}')`);
-
 	updatePaintingReference(palette);
 }
 
@@ -825,23 +819,49 @@ function fadeToRerenderedHeatmap() {
 	}, PALETTE_FADE_MS);
 }
 
-function populatePaletteSelect() {
-	const select = document.getElementById("palette-select");
-	Object.entries(PALETTES).forEach(([key, palette]) => {
-		const option = document.createElement("option");
-		option.value = key;
-		option.textContent = palette.label;
-		select.appendChild(option);
+function setActivePaletteRailItem(key) {
+	const rail = document.getElementById("palette-rail");
+	Array.from(rail.children).forEach((btn) => {
+		btn.classList.toggle("active", btn.dataset.paletteKey === key);
 	});
-	select.value = currentPaletteKey;
+}
 
-	select.addEventListener("change", () => {
-		currentPaletteKey = select.value;
-		applyPaletteTheme(PALETTES[currentPaletteKey]);
-		if (currentSentenceLedger && currentWordLedger) {
-			fadeToRerenderedHeatmap();
-		}
+function populatePaletteRail() {
+	const rail = document.getElementById("palette-rail");
+	Object.entries(PALETTES).forEach(([key, palette]) => {
+		const label = palette.imageTitle ? `${palette.imageTitle}, ${palette.label}` : palette.label;
+
+		const btn = document.createElement("button");
+		btn.type = "button";
+		btn.className = "palette-rail-item";
+		btn.dataset.paletteKey = key;
+		btn.title = label;
+		btn.setAttribute("aria-label", label);
+		btn.setAttribute("aria-pressed", key === currentPaletteKey ? "true" : "false");
+
+		const img = document.createElement("img");
+		img.className = "palette-rail-thumb";
+		img.src = palette.image;
+		img.alt = "";
+		btn.appendChild(img);
+
+		btn.addEventListener("click", () => {
+			if (key === currentPaletteKey) return;
+			currentPaletteKey = key;
+			applyPaletteTheme(PALETTES[currentPaletteKey]);
+			setActivePaletteRailItem(key);
+			Array.from(rail.children).forEach((otherBtn) => {
+				otherBtn.setAttribute("aria-pressed", otherBtn === btn ? "true" : "false");
+			});
+			if (currentSentenceLedger && currentWordLedger) {
+				fadeToRerenderedHeatmap();
+			}
+		});
+
+		rail.appendChild(btn);
 	});
+
+	setActivePaletteRailItem(currentPaletteKey);
 }
 
 function initAnalysisToggle() {
@@ -866,7 +886,7 @@ function initAnalysisToggle() {
 }
 
 applyPaletteTheme(PALETTES[currentPaletteKey]);
-populatePaletteSelect();
+populatePaletteRail();
 initAnalysisToggle();
 
 function setSourceStatus(text) {
