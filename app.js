@@ -919,8 +919,43 @@ applyPaletteTheme(PALETTES[currentPaletteKey]);
 populatePaletteRail();
 initAnalysisToggle();
 
-function setSourceStatus(text) {
-	document.getElementById("mode-label").textContent = text;
+// Long status text (e.g. an error body Google sends back) is truncated
+// to this many characters, with a "Show more" toggle to read the rest.
+const STATUS_TRUNCATE_LENGTH = 120;
+
+function setSourceStatus(text, { loading = false, error = false } = {}) {
+	const label = document.getElementById("mode-label");
+	label.innerHTML = "";
+
+	if (error && text.length > STATUS_TRUNCATE_LENGTH) {
+		const truncated = text.slice(0, STATUS_TRUNCATE_LENGTH).trimEnd();
+		const textSpan = document.createElement("span");
+		textSpan.textContent = `${truncated}… `;
+
+		const toggleBtn = document.createElement("button");
+		toggleBtn.type = "button";
+		toggleBtn.className = "status-expand-btn";
+		toggleBtn.textContent = "Show more";
+		toggleBtn.addEventListener("click", () => {
+			const isTruncated = toggleBtn.textContent === "Show more";
+			textSpan.textContent = isTruncated ? text : `${truncated}… `;
+			toggleBtn.textContent = isTruncated ? "Show less" : "Show more";
+		});
+
+		label.appendChild(textSpan);
+		label.appendChild(toggleBtn);
+		return;
+	}
+
+	label.appendChild(document.createTextNode(text));
+
+	if (loading) {
+		const dots = document.createElement("span");
+		dots.className = "loading-dots";
+		dots.setAttribute("aria-hidden", "true");
+		dots.innerHTML = "<span></span><span></span><span></span>";
+		label.appendChild(dots);
+	}
 }
 
 function loadDemo() {
@@ -1008,7 +1043,7 @@ async function driveApiFetch(url, attempt = 1) {
 		const waitMs = retryAfterHeader
 			? Number(retryAfterHeader) * 1000
 			: Math.min((isAbuseBlock ? 4000 : 800) * 2 ** (attempt - 1), 20000);
-		setSourceStatus(`Google is rate-limiting requests — retrying in ${Math.ceil(waitMs / 1000)}s…`);
+		setSourceStatus(`Google is rate-limiting requests — retrying in ${Math.ceil(waitMs / 1000)}s…`, { loading: true });
 		await sleep(waitMs);
 		return driveApiFetch(url, attempt + 1);
 	}
@@ -1062,7 +1097,7 @@ async function fetchRevisionText(fileId, revisionId) {
 }
 
 async function loadGoogleDoc(fileId) {
-	setSourceStatus("Fetching revision history…");
+	setSourceStatus("Fetching revision history…", { loading: true });
 	const [title, allRevisionIds] = await Promise.all([
 		fetchDocTitle(fileId),
 		fetchRevisionIds(fileId)
@@ -1076,7 +1111,7 @@ async function loadGoogleDoc(fileId) {
 	const sampledIds = sampleEvenly(allRevisionIds, MAX_REVISIONS_TO_FETCH);
 	const texts = [];
 	for (let i = 0; i < sampledIds.length; i++) {
-		setSourceStatus(`Fetching revision ${i + 1} of ${sampledIds.length}…`);
+		setSourceStatus(`Fetching revision ${i + 1} of ${sampledIds.length}…`, { loading: true });
 		texts.push(await fetchRevisionText(fileId, sampledIds[i]));
 		// Small pause between revisions — each one is two requests to
 		// Google's export endpoints, which rate-limit bursts more
@@ -1123,7 +1158,7 @@ function openDocPicker() {
 			const fileId = data.docs[0].id;
 			loadGoogleDoc(fileId).catch((err) => {
 				console.error("Brushstrokes: failed to load Google Doc", err);
-				setSourceStatus(`Couldn't load that document: ${err.message}`);
+				setSourceStatus(`Couldn't load that document: ${err.message}`, { error: true });
 			});
 		})
 		.build();
@@ -1142,7 +1177,7 @@ function initGoogleAuth() {
 		scope: GOOGLE_DRIVE_SCOPE,
 		callback: (response) => {
 			if (response.error) {
-				setSourceStatus(`Google sign-in failed: ${response.error}`);
+				setSourceStatus(`Google sign-in failed: ${response.error}`, { error: true });
 				return;
 			}
 			googleAccessToken = response.access_token;
@@ -1160,7 +1195,7 @@ document.getElementById("connect-doc-btn").addEventListener("click", () => {
 		setSourceStatus("Google Picker isn't ready yet — try again in a moment.");
 		return;
 	}
-	setSourceStatus("Requesting access…");
+	setSourceStatus("Requesting access…", { loading: true });
 	googleTokenClient.requestAccessToken();
 });
 
