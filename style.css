@@ -173,15 +173,6 @@ button.btn-primary:hover:not(:disabled) {
 	color: var(--color-highlight-hover-text);
 }
 
-.style-rail-title {
-	font-family: "Source Sans 3", sans-serif;
-	font-size: 0.7rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-	color: var(--color-text-faint);
-}
-
 .radio-group {
 	display: flex;
 	flex-direction: column;
@@ -266,18 +257,7 @@ button.btn-primary:hover:not(:disabled) {
 	color: var(--color-highlight-hover);
 }
 
-/*
- * Fixed vertical rail of palette thumbnails, pinned to the right edge
- * of the viewport so it's reachable from anywhere on the page. Click a
- * thumbnail to switch palettes — see populatePaletteRail() in app.js.
- */
-/*
- * Fixed group holding the jump-nav and the style/legend rail, stacked
- * vertically on the left edge -- one shared fixed position + vertical
- * centering, so the two cards sit right next to each other instead of
- * each needing to guess the other's height.
- */
-.left-rail-group {
+.jump-rail {
 	position: fixed;
 	top: 50%;
 	left: 1.25rem;
@@ -285,20 +265,32 @@ button.btn-primary:hover:not(:disabled) {
 	z-index: 100;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
-	max-height: 80vh;
-}
-
-.jump-rail {
-	display: flex;
-	flex-direction: column;
 	gap: 0.85rem;
 	padding: 1rem 1.1rem;
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
+	max-height: 80vh;
 	max-width: 11rem;
 	overflow-y: auto;
+}
+
+/*
+ * Fixed group holding the palette rail and the style/legend rail,
+ * stacked vertically on the right edge -- one shared fixed position +
+ * vertical centering, so the two cards sit right next to each other
+ * instead of each needing to guess the other's height.
+ */
+.right-rail-group {
+	position: fixed;
+	top: 50%;
+	right: 1.25rem;
+	transform: translateY(-50%);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	max-height: 80vh;
 }
 
 .style-rail {
@@ -312,7 +304,7 @@ button.btn-primary:hover:not(:disabled) {
 	border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.jump-rail-title {
+.rail-title {
 	font-family: "Source Sans 3", sans-serif;
 	font-size: 0.7rem;
 	font-weight: 700;
@@ -349,11 +341,6 @@ button.btn-primary:hover:not(:disabled) {
 }
 
 .palette-rail {
-	position: fixed;
-	top: 50%;
-	right: 1.25rem;
-	transform: translateY(-50%);
-	z-index: 100;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
@@ -361,7 +348,6 @@ button.btn-primary:hover:not(:disabled) {
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	max-height: 80vh;
 	overflow-y: auto;
 }
 
@@ -395,8 +381,11 @@ button.btn-primary:hover:not(:disabled) {
 }
 
 @media (max-width: 900px) {
-	.palette-rail {
+	.right-rail-group {
 		right: 0.5rem;
+	}
+
+	.palette-rail {
 		gap: 0.35rem;
 		padding: 0.35rem;
 	}
