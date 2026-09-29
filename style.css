@@ -557,13 +557,22 @@ button.btn-primary:hover:not(:disabled) {
 		justify-content: center;
 	}
 
-	/* The legend's own gradient runs horizontally to match. */
-	.legend-row {
+	/* The legend's own gradient runs horizontally to match. Scoped with
+	   .right-rail-group (not just .legend-row) for the same reason as
+	   .legend-gradient below -- the unconditional base rule appears
+	   later in the file and would otherwise win the specificity tie
+	   regardless of viewport. */
+	.right-rail-group .legend-row {
 		flex-direction: row;
 		align-items: center;
 	}
 
-	.legend-gradient {
+	/* .right-rail-group prefix (not just .legend-gradient) is
+	   deliberate: this and the unconditional base rule below have
+	   equal specificity otherwise, and the base rule -- appearing
+	   later in the file -- would win the tie regardless of viewport,
+	   silently defeating this media query. */
+	.right-rail-group .legend-gradient {
 		width: 6rem;
 		height: 0.6rem;
 		background: linear-gradient(90deg, var(--legend-stops));
