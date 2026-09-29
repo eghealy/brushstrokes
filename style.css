@@ -267,7 +267,13 @@ button.btn-primary:hover:not(:disabled) {
  * of the viewport so it's reachable from anywhere on the page. Click a
  * thumbnail to switch palettes — see populatePaletteRail() in app.js.
  */
-.jump-rail {
+/*
+ * Fixed group holding the jump-nav and the style/legend rail, stacked
+ * vertically on the left edge -- one shared fixed position + vertical
+ * centering, so the two cards sit right next to each other instead of
+ * each needing to guess the other's height.
+ */
+.left-rail-group {
 	position: fixed;
 	top: 50%;
 	left: 1.25rem;
@@ -275,14 +281,31 @@ button.btn-primary:hover:not(:disabled) {
 	z-index: 100;
 	display: flex;
 	flex-direction: column;
+	gap: 0.75rem;
+	max-height: 80vh;
+}
+
+.jump-rail {
+	display: flex;
+	flex-direction: column;
 	gap: 0.85rem;
 	padding: 1rem 1.1rem;
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	max-height: 80vh;
 	max-width: 11rem;
 	overflow-y: auto;
+}
+
+.style-rail {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.85rem 0.75rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .jump-rail-title {
@@ -456,33 +479,36 @@ button.btn-primary:hover:not(:disabled) {
 	transform: scale(1);
 }
 
-.toolkit-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 1.5rem;
-}
-
-@media (max-width: 700px) {
-	.toolkit-row {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.85rem;
-	}
-}
-
+/*
+ * Lives inside the palette rail, above the palette thumbnails --
+ * a vertical bar (rather than the old horizontal one) to match the
+ * rail's own vertical layout.
+ */
 .legend {
-	display: flex;
+	display: none;
+	flex-direction: column;
 	align-items: center;
-	gap: 0.6rem;
-	font-size: 0.8rem;
+	gap: 0.35rem;
+	margin-bottom: 0.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	font-size: 0.62rem;
+	line-height: 1.2;
+	text-align: center;
 	color: var(--color-text-muted);
+}
+
+/* display:flex on the bare class would beat the browser's default
+   [hidden] { display: none } (author rules always win at equal
+   specificity) -- see the same fix on .frame-loading. */
+.legend:not([hidden]) {
+	display: flex;
 }
 
 .legend-gradient {
 	display: inline-block;
-	width: 8rem;
-	height: 0.6rem;
+	width: 0.6rem;
+	height: 6rem;
 	border-radius: 999px;
 	transition: opacity 0.25s ease;
 }

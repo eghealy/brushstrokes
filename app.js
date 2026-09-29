@@ -526,6 +526,9 @@ function heatColor(t, palette, alphaScale) {
 // from a palette's own stops -- unlike heatColorComponents, this
 // doesn't interpolate between them itself; it hands all the stops to
 // the browser and lets its own gradient rendering do that blending.
+// 180deg runs top-to-bottom, matching the legend's "less" label above
+// the bar and "more" below it (stops are already ordered low t to
+// high t, i.e. least to most edited).
 function paletteToCssGradient(palette) {
 	const stops = palette.stops
 		.map((stop) => {
@@ -534,7 +537,7 @@ function paletteToCssGradient(palette) {
 			return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha}) ${stop.t * 100}%`;
 		})
 		.join(", ");
-	return `linear-gradient(90deg, ${stops})`;
+	return `linear-gradient(180deg, ${stops})`;
 }
 
 // Keeps the popout on-screen horizontally, and flips it above the
