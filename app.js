@@ -809,7 +809,13 @@ function renderFrameGraphic(wordLedger, sentenceLedger, palette, variant) {
 
 	pixels.innerHTML = "";
 	positioned.forEach(({ entry, line, startCol, wordLen }, i) => {
-		const heatSource = variant === "sentence" ? wordToSentence[startIndex + i] : entry;
+		// Falls back to the word's own entry if there's no mapped sentence
+		// at this position -- real-world text can occasionally trip up the
+		// regex-based sentence splitter (abbreviations, ellipses, unusual
+		// punctuation) so its word count doesn't perfectly match the plain
+		// word ledger's. Better to color that one cell slightly wrong than
+		// throw and leave the rest of the canvas unpainted.
+		const heatSource = (variant === "sentence" && wordToSentence[startIndex + i]) || entry;
 		const normalized = maxCount > 1 ? (heatSource.count - 1) / (maxCount - 1) : 0;
 		const { rgb, alpha } = heatColorComponents(normalized, palette);
 
