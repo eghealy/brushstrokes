@@ -30,7 +30,11 @@
 	transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
 }
 
-html, body {
+/* Only html, not body -- overflow-x on body makes it its own scroll
+   container per spec, which silently breaks position: sticky on
+   descendants (e.g. #style-card). html alone is enough to stop the
+   mobile logo-overflow bug this was added for. */
+html {
 	overflow-x: hidden;
 }
 
