@@ -173,34 +173,38 @@ button.btn-primary:hover:not(:disabled) {
 	color: var(--color-highlight-hover-text);
 }
 
-.segmented {
-	display: inline-flex;
-	padding: 0.15rem;
-	border-radius: 0.5rem;
-	background-color: var(--color-control-bg);
-	border: 1px solid var(--color-border);
+.style-rail-title {
+	font-family: "Source Sans 3", sans-serif;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--color-text-faint);
 }
 
-.segmented-option {
-	font: inherit;
-	font-size: 0.8rem;
-	padding: 0.3rem 0.75rem;
-	border: none;
-	border-radius: 0.35rem;
-	background-color: transparent;
+.radio-group {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.radio-option {
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	font-size: 0.85rem;
 	color: var(--color-text-muted);
 	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.segmented-option:hover {
+.radio-option input[type="radio"] {
+	accent-color: var(--color-highlight);
+	cursor: pointer;
+}
+
+.radio-option:hover {
 	color: var(--color-text);
-}
-
-.segmented-option.active {
-	background-color: var(--color-highlight);
-	color: var(--color-highlight-text);
-	font-weight: 600;
 }
 
 .mode-label {
@@ -267,7 +271,13 @@ button.btn-primary:hover:not(:disabled) {
  * of the viewport so it's reachable from anywhere on the page. Click a
  * thumbnail to switch palettes — see populatePaletteRail() in app.js.
  */
-.jump-rail {
+/*
+ * Fixed group holding the jump-nav and the style/legend rail, stacked
+ * vertically on the left edge -- one shared fixed position + vertical
+ * centering, so the two cards sit right next to each other instead of
+ * each needing to guess the other's height.
+ */
+.left-rail-group {
 	position: fixed;
 	top: 50%;
 	left: 1.25rem;
@@ -275,14 +285,31 @@ button.btn-primary:hover:not(:disabled) {
 	z-index: 100;
 	display: flex;
 	flex-direction: column;
+	gap: 0.75rem;
+	max-height: 80vh;
+}
+
+.jump-rail {
+	display: flex;
+	flex-direction: column;
 	gap: 0.85rem;
 	padding: 1rem 1.1rem;
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	max-height: 80vh;
 	max-width: 11rem;
 	overflow-y: auto;
+}
+
+.style-rail {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.85rem 0.75rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .jump-rail-title {
@@ -456,33 +483,36 @@ button.btn-primary:hover:not(:disabled) {
 	transform: scale(1);
 }
 
-.toolkit-row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 1.5rem;
-}
-
-@media (max-width: 700px) {
-	.toolkit-row {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.85rem;
-	}
-}
-
+/*
+ * Lives inside the palette rail, above the palette thumbnails --
+ * a vertical bar (rather than the old horizontal one) to match the
+ * rail's own vertical layout.
+ */
 .legend {
-	display: flex;
+	display: none;
+	flex-direction: column;
 	align-items: center;
-	gap: 0.6rem;
-	font-size: 0.8rem;
+	gap: 0.35rem;
+	margin-bottom: 0.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	font-size: 0.62rem;
+	line-height: 1.2;
+	text-align: center;
 	color: var(--color-text-muted);
+}
+
+/* display:flex on the bare class would beat the browser's default
+   [hidden] { display: none } (author rules always win at equal
+   specificity) -- see the same fix on .frame-loading. */
+.legend:not([hidden]) {
+	display: flex;
 }
 
 .legend-gradient {
 	display: inline-block;
-	width: 8rem;
-	height: 0.6rem;
+	width: 0.6rem;
+	height: 6rem;
 	border-radius: 999px;
 	transition: opacity 0.25s ease;
 }
@@ -533,7 +563,7 @@ button.btn-primary:hover:not(:disabled) {
 .frame-loading {
 	position: absolute;
 	inset: 0;
-	display: flex;
+	display: none;
 	align-items: center;
 	justify-content: center;
 	gap: 0.4rem;
@@ -542,6 +572,13 @@ button.btn-primary:hover:not(:disabled) {
 	border: 1px solid rgba(255, 255, 255, 0.12);
 	color: var(--color-text-faint);
 	font-size: 0.85rem;
+}
+
+/* display:flex on the bare class would beat the browser's default
+   [hidden] { display: none }, since author rules always win at equal
+   specificity -- this keeps it hidden until JS clears the attribute. */
+.frame-loading:not([hidden]) {
+	display: flex;
 }
 
 .painting-reference {

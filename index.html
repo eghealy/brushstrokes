@@ -38,29 +38,10 @@
 		-->
 		</details>
 
-		<div class="control-card" id="style-card">
-			<h2 class="control-card-heading">Toolkit</h2>
-			<div class="toolkit-row">
-				<div class="toolbar">
-					<span class="toolbar-group-label">Style</span>
-					<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
-						<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
-						<button type="button" class="segmented-option" data-mode="word">Word</button>
-					</div>
-				</div>
-
-				<div class="legend" id="legend" hidden>
-					<span class="toolbar-group-label">Legend</span>
-					<span class="legend-label">Edited less</span>
-					<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
-					<span class="legend-label">Edited more</span>
-				</div>
-			</div>
-		</div>
-
 		<div class="control-card" id="revision-heatmap-card">
-			<h2 class="control-card-heading">Record of critical decisions</h2>
+			<h2 class="control-card-heading">Record</h2>
 			<p>Upload drafts to visualize how your work has evolved over time. A Google Doc's revision history can be enlightening, or upload multiple draft files of the same piece to create your own history.</p>
+			<p>Use the floating adjustments panel on the right to adjust the record. Choose a fine-art inspired color palette or toggle between sentence and word-level granularity.</p>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
 				<button type="button" id="upload-drafts-btn" class="btn btn-primary">Upload Drafts</button>
@@ -75,7 +56,7 @@
 		</div>
 
 		<section class="footnote-panel">
-			<span class="footnote-label">Frame</span>
+			<span class="footnote-label">Framing</span>
 			<p class="footnote-placeholder">A snapshot of the most heavily edited portion of your story, rendered according to your chosen color palette.</p>
 			<button type="button" id="download-frame-btn" class="btn btn-primary" disabled title="Load a document first">Download as JPEG</button>
 		</section>
@@ -117,20 +98,35 @@
 			<p>The comparisons that power this heatmap come from a plain, deterministic text-diffing algorithm — the same category of tool used by version control systems like Git. It's math, not A.I., and version controls have been around for a while. Your writing is never sent to Claude, ChatGPT, Gemini, or any other A.I. model, and it is never used to train one.</p>
 
 			<h3>Google</h3>
-			<p>Your document already lives on Google's servers, because that's where Google Docs stores it — this tool doesn't change that. Connecting a doc here uses Google's own sign-in to read data you already have access to, the same as opening the doc yourself. Brushstrokes doesn't add a new party into that relationship, and doesn't keep a copy anywhere else.</p>
+			<p>If you connect a Google Doc to Brushstrokes, your document already lives on Google's servers. Connecting a doc here uses Google's own sign-in to read data you already have access to, the same as opening the doc yourself. Brushstrokes doesn't add a new party into that relationship, and doesn't keep a copy anywhere else.</p>
 
 			<p>Read the full <a href="privacy.html">Privacy Policy</a>.</p>
 		</details>
 	</main>
 
-	<nav class="jump-rail" aria-label="Jump to a section">
-		<span class="jump-rail-title">On this page</span>
-		<a href="#section-art"><span class="jump-rail-number">01.</span> Decision-making</a>
-		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Record of critical decisions</a>
-		<a href="#section-frame"><span class="jump-rail-number">03.</span> Frame</a>
-		<a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
-		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
-	</nav>
+	<div class="left-rail-group">
+		<nav class="jump-rail" aria-label="Jump to a section">
+			<span class="jump-rail-title">On this page</span>
+			<a href="#section-art"><span class="jump-rail-number">01.</span> Decision-making</a>
+			<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Record</a>
+			<a href="#section-frame"><span class="jump-rail-number">03.</span> Framing</a>
+			<a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
+			<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
+		</nav>
+
+		<div class="style-rail" id="style-rail" role="group" aria-label="Style and edit-heat legend">
+			<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
+				<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
+				<button type="button" class="segmented-option" data-mode="word">Word</button>
+			</div>
+
+			<div class="legend" id="legend" hidden>
+				<span class="legend-label">Edited less</span>
+				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
+				<span class="legend-label">Edited more</span>
+			</div>
+		</div>
+	</div>
 
 	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>
 
