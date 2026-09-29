@@ -1022,18 +1022,13 @@ function populatePaletteRail() {
 
 function initAnalysisToggle() {
 	const toggle = document.getElementById("analysis-toggle");
-	const options = Array.from(toggle.querySelectorAll(".segmented-option"));
+	const options = Array.from(toggle.querySelectorAll('input[type="radio"]'));
 
-	function setActive(mode) {
-		options.forEach((btn) => btn.classList.toggle("active", btn.dataset.mode === mode));
-	}
-
-	setActive(currentAnalysisMode);
-
-	options.forEach((btn) => {
-		btn.addEventListener("click", () => {
-			currentAnalysisMode = btn.dataset.mode;
-			setActive(currentAnalysisMode);
+	options.forEach((input) => {
+		input.checked = input.value === currentAnalysisMode;
+		input.addEventListener("change", () => {
+			if (!input.checked) return;
+			currentAnalysisMode = input.value;
 			if (currentSentenceLedger && currentWordLedger) {
 				renderHeatmap(currentSentenceLedger, currentWordLedger);
 			}
