@@ -826,6 +826,31 @@ function setActivePaletteRailItem(key) {
 	});
 }
 
+// Keeps the preview fully on-screen even when hovering the topmost or
+// bottommost thumbnail, by clamping how close its vertical center can
+// get to the viewport edges.
+const PALETTE_PREVIEW_EDGE_MARGIN = 140;
+
+function showPalettePreview(palette, thumbBtn) {
+	const preview = document.getElementById("palette-preview");
+	const previewImg = document.getElementById("palette-preview-image");
+	previewImg.src = palette.image;
+	previewImg.alt = palette.imageTitle ? `${palette.imageTitle}, ${palette.label}` : palette.label;
+
+	const rect = thumbBtn.getBoundingClientRect();
+	const centerY = rect.top + rect.height / 2;
+	const clampedY = Math.min(
+		Math.max(centerY, PALETTE_PREVIEW_EDGE_MARGIN),
+		window.innerHeight - PALETTE_PREVIEW_EDGE_MARGIN
+	);
+	preview.style.top = `${clampedY}px`;
+	preview.classList.add("visible");
+}
+
+function hidePalettePreview() {
+	document.getElementById("palette-preview").classList.remove("visible");
+}
+
 function populatePaletteRail() {
 	const rail = document.getElementById("palette-rail");
 	Object.entries(PALETTES).forEach(([key, palette]) => {
@@ -857,6 +882,11 @@ function populatePaletteRail() {
 				fadeToRerenderedHeatmap();
 			}
 		});
+
+		btn.addEventListener("mouseenter", () => showPalettePreview(palette, btn));
+		btn.addEventListener("mouseleave", hidePalettePreview);
+		btn.addEventListener("focus", () => showPalettePreview(palette, btn));
+		btn.addEventListener("blur", hidePalettePreview);
 
 		rail.appendChild(btn);
 	});

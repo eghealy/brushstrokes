@@ -235,6 +235,48 @@ button.btn-primary:hover:not(:disabled) {
 		width: 2rem;
 		height: 2rem;
 	}
+
+	.palette-preview {
+		right: 3.7rem;
+		width: 12rem;
+	}
+}
+
+/*
+ * Larger preview of a palette's painting, shown when hovering (or
+ * focusing) its rail thumbnail. Positioned outside the rail itself
+ * (not scaling the thumbnail in place) since the rail clips overflow
+ * for its internal scrollbar. JS sets `top` per-thumbnail so the
+ * preview lines up with whichever one is active; this just handles
+ * the horizontal placement, sizing, and show/hide transition.
+ */
+.palette-preview {
+	position: fixed;
+	right: 5.5rem;
+	width: 16rem;
+	max-width: 40vw;
+	max-height: 70vh;
+	transform: translateY(-50%) scale(0.96);
+	opacity: 0;
+	pointer-events: none;
+	z-index: 101;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+	transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.palette-preview.visible {
+	opacity: 1;
+	transform: translateY(-50%) scale(1);
+}
+
+.palette-preview img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .legend {
@@ -429,4 +471,44 @@ button.btn-primary:hover:not(:disabled) {
 
 .content-card p + p {
 	margin-top: 1rem;
+}
+
+.content-card summary {
+	cursor: pointer;
+	list-style: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.content-card summary::-webkit-details-marker {
+	display: none;
+}
+
+.content-card summary::marker {
+	content: "";
+}
+
+.content-card summary h2 {
+	margin: 0;
+}
+
+.content-card summary::after {
+	content: "";
+	flex-shrink: 0;
+	width: 0.55em;
+	height: 0.55em;
+	border-right: 2px solid var(--color-text-faint);
+	border-bottom: 2px solid var(--color-text-faint);
+	transform: rotate(45deg);
+	transition: transform 0.2s ease;
+}
+
+.content-card[open] summary::after {
+	transform: rotate(-135deg);
+}
+
+.content-card summary:hover h2 {
+	color: var(--color-highlight);
 }
