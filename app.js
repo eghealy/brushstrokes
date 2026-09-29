@@ -287,7 +287,7 @@ const PALETTES = {
 };
 
 const DEFAULT_PALETTE_KEY = "johnLurie";
-const DEFAULT_ANALYSIS_MODE = "word";
+const DEFAULT_ANALYSIS_MODE = "sentence";
 let currentPaletteKey = DEFAULT_PALETTE_KEY;
 let currentAnalysisMode = DEFAULT_ANALYSIS_MODE;
 let currentSentenceLedger = null;
