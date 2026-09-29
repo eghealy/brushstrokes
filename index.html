@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="robots" content="noindex, nofollow, noarchive">
 	<title>Brushstrokes</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +24,7 @@
 			<span class="frame-label" id="painting-caption"></span>
 		</div>
 		
-		<details class="content-card" open>
+		<details class="content-card" id="section-art" open>
 			<summary><h2>Art and decisionmaking</h2></summary>
 
 			<p>In Ted Chiang’s New Yorker op-ed “Why A.I. isn’t going to make art,” he argues that a 10,000-word short story is created by roughly 10,000 decisions. Likewise, a painting is created by thousands of brushstrokes, each essential to the final work of art. The choices made at every level of the creative process — while plotting, coming up with a title, laboring over the opening sentence, or rendering a new setting — combine to create a unique work of art. A piece created (or heavily influenced) by artificial intelligence glosses over all of the minute decisions and relies on the A.I.’s inherently derivative reasoning to fill in the contours of the project. The result may be readable, or parseable, or lukewarmly pleasing. But it cannot be art.</p>
@@ -92,7 +93,7 @@
 			<button type="button" id="download-svg-btn" class="btn btn-primary" disabled title="Load a document first">Download as SVG</button>
 		</section>
 
-		<details class="content-card" open>
+		<details class="content-card" id="section-ai" open>
 			<summary><h2>How can writers use A.I., if at all?</h2></summary>
 			<p>This website is not a work of art. It is a resource; a demonstration; a way for writers to look at their own work and creative process in a new way. To evaluate their process against an ideal. I created Brushstrokes for myself, as a reminder that each word I write is worthy of revision. I aspire to treat every sentence that crosses my pen with careful consideration.</p>
 			<p>To create this tool, I used Claude Code. While I have an interest in creative coding and have dabbled in website design, I could never have made this project on my own.</p>
@@ -102,7 +103,7 @@
 			<p>I do NOT use A.I. to create art. I do not condone the use of A.I. to create art. I have never used A.I. to write creatively, and I am always happy to share the many, many, many drafts that scaffold a finished short story. My first drafts are always handwritten, in my own barely-legible scrawl.</p>
 		</details>
 
-		<details class="content-card" open>
+		<details class="content-card" id="section-privacy" open>
 			<summary><h2>Privacy</h2></summary>
 			<p>A.I. helped create this tool. It cannot read any writing uploaded to Brushstrokes.</p>
 			<p>I used Claude to write some of the code running this page — the HTML, CSS, and JavaScript. That's the full extent of A.I.'s involvement. Writing the tool and using the tool are two separate things: no A.I. has seen, or will ever see, any document you connect here.</p>
@@ -115,6 +116,13 @@
 			<p>Read the full <a href="privacy.html">Privacy Policy</a>.</p>
 		</details>
 	</main>
+
+	<nav class="jump-rail" aria-label="Jump to a section">
+		<span class="jump-rail-title">On this page</span>
+		<a href="#section-art"><span class="jump-rail-number">01.</span> Art and decisionmaking</a>
+		<a href="#section-ai"><span class="jump-rail-number">02.</span> How can writers use A.I., if at all?</a>
+		<a href="#section-privacy"><span class="jump-rail-number">03.</span> Privacy</a>
+	</nav>
 
 	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>
 
