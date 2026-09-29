@@ -516,6 +516,9 @@ button.btn-primary:hover:not(:disabled) {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
+}
+
+.content-card[open] summary {
 	margin-bottom: 0.75rem;
 }
 
