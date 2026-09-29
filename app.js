@@ -1055,9 +1055,13 @@ async function driveApiFetch(url, attempt = 1) {
 	return response;
 }
 
+// supportsAllDrives=true is required on every Drive API v3 call below,
+// or files that live in a Shared Drive (rather than "My Drive") 404 --
+// the API doesn't traverse Shared Drives unless you opt in explicitly,
+// even though the Picker happily lets you select from one.
 async function fetchDocTitle(fileId) {
 	const response = await driveApiFetch(
-		`https://www.googleapis.com/drive/v3/files/${fileId}?fields=name`
+		`https://www.googleapis.com/drive/v3/files/${fileId}?fields=name&supportsAllDrives=true`
 	);
 	const data = await response.json();
 	return data.name;
@@ -1069,7 +1073,7 @@ async function fetchRevisionIds(fileId) {
 	do {
 		const url =
 			`https://www.googleapis.com/drive/v3/files/${fileId}/revisions` +
-			`?fields=nextPageToken,revisions(id)&pageSize=1000` +
+			`?fields=nextPageToken,revisions(id)&pageSize=1000&supportsAllDrives=true` +
 			(pageToken ? `&pageToken=${pageToken}` : "");
 		const response = await driveApiFetch(url);
 		const data = await response.json();
@@ -1085,7 +1089,7 @@ async function fetchRevisionText(fileId, revisionId) {
 	// documents you first ask for the revision's exportLinks, then fetch
 	// the plain-text URL it hands back — same auth header, second request.
 	const metaResponse = await driveApiFetch(
-		`https://www.googleapis.com/drive/v3/files/${fileId}/revisions/${revisionId}?fields=exportLinks`
+		`https://www.googleapis.com/drive/v3/files/${fileId}/revisions/${revisionId}?fields=exportLinks&supportsAllDrives=true`
 	);
 	const meta = await metaResponse.json();
 	const exportUrl = meta.exportLinks && meta.exportLinks["text/plain"];
@@ -1148,10 +1152,11 @@ function openDocPicker() {
 	const picker = new google.picker.PickerBuilder()
 		.setOAuthToken(googleAccessToken)
 		.setDeveloperKey(GOOGLE_API_KEY)
+		.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 		.addView(
-			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS).setMimeTypes(
-				"application/vnd.google-apps.document"
-			)
+			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS)
+				.setMimeTypes("application/vnd.google-apps.document")
+				.setEnableDrives(true)
 		)
 		.setCallback((data) => {
 			if (data.action !== google.picker.Action.PICKED) return;
