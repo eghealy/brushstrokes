@@ -38,7 +38,7 @@
 		-->
 		</details>
 
-		<div class="control-card">
+		<div class="control-card" id="style-card">
 			<div class="toolbar">
 				<span class="toolbar-group-label">Style</span>
 				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
@@ -68,8 +68,8 @@
 		</div>
 
 		<div class="frame-standalone" id="section-frame">
-			<span class="frame-label">Frame &mdash; most-edited 250 words (colored by word)</span>
-			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word, colored by how much that word was edited">
+			<span class="frame-label" id="frame-label">Frame &mdash; most-edited 250 words</span>
+			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word or sentence depending on the current style, colored by how much it was edited">
 				<defs>
 					<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
 						<feGaussianBlur stdDeviation="4"></feGaussianBlur>
@@ -82,27 +82,8 @@
 
 		<section class="footnote-panel">
 			<span class="footnote-label">Export</span>
-			<p class="footnote-placeholder">A snapshot of the most heavily edited portion of your story, colored by how much each word was edited.</p>
+			<p class="footnote-placeholder">A snapshot of the most heavily edited portion of your story, rendered according to your chosen color palette.</p>
 			<button type="button" id="download-frame-btn" class="btn btn-primary" disabled title="Load a document first">Download as JPEG</button>
-		</section>
-
-		<div class="frame-standalone" id="section-frame-sentence">
-			<span class="frame-label">Frame &mdash; most-edited 250 words (colored by sentence)</span>
-			<svg id="frame-graphic-sentence" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word, colored by how much that word's containing sentence was edited">
-				<defs>
-					<filter id="frame-blur-sentence" x="-10%" y="-10%" width="120%" height="120%">
-						<feGaussianBlur stdDeviation="4"></feGaussianBlur>
-					</filter>
-				</defs>
-				<rect id="frame-bg-sentence" width="850" height="1100" fill="#0a2243"></rect>
-				<g id="frame-pixels-sentence" filter="url(#frame-blur-sentence)"></g>
-			</svg>
-		</div>
-
-		<section class="footnote-panel">
-			<span class="footnote-label">Export</span>
-			<p class="footnote-placeholder">The same block, colored by how much each word's containing sentence was edited.</p>
-			<button type="button" id="download-frame-sentence-btn" class="btn btn-primary" disabled title="Load a document first">Download as JPEG</button>
 		</section>
 
 		<details class="content-card" id="section-ai" open>
@@ -132,10 +113,9 @@
 		<span class="jump-rail-title">On this page</span>
 		<a href="#section-art"><span class="jump-rail-number">01.</span> Art and decisionmaking</a>
 		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Revision Heatmap</a>
-		<a href="#section-frame"><span class="jump-rail-number">03.</span> Frame (word)</a>
-		<a href="#section-frame-sentence"><span class="jump-rail-number">04.</span> Frame (sentence)</a>
-		<a href="#section-ai"><span class="jump-rail-number">05.</span> How can writers use A.I., if at all?</a>
-		<a href="#section-privacy"><span class="jump-rail-number">06.</span> Privacy</a>
+		<a href="#section-frame"><span class="jump-rail-number">03.</span> Frame</a>
+		<a href="#section-ai"><span class="jump-rail-number">04.</span> How can writers use A.I., if at all?</a>
+		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
 	</nav>
 
 	<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette"></nav>

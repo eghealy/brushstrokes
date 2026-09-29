@@ -649,7 +649,7 @@ function renderWordLevelHeatmap(sentenceLedger, wordLedger, palette, output, fin
 			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
 
-		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n"));
 	});
 }
 
@@ -672,7 +672,7 @@ function renderSentenceLevelHeatmap(sentenceLedger, palette, output, finalText) 
 			if (sentenceIdx < paragraphSentences.length - 1) output.appendChild(document.createTextNode(" "));
 		});
 
-		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n\n"));
+		if (paragraphIdx < paragraphGroups.length - 1) output.appendChild(document.createTextNode("\n"));
 	});
 }
 
@@ -698,10 +698,7 @@ function renderHeatmap(sentenceLedger, wordLedger, finalText, { updateFrame = tr
 	document.getElementById("legend-gradient").style.background = paletteToCssGradient(palette);
 	document.getElementById("legend").hidden = false;
 
-	if (updateFrame) {
-		renderFrameGraphic(wordLedger, sentenceLedger, palette, "word");
-		renderFrameGraphic(wordLedger, sentenceLedger, palette, "sentence");
-	}
+	if (updateFrame) renderFrameGraphic(wordLedger, sentenceLedger, palette, currentAnalysisMode);
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -775,36 +772,21 @@ function layoutWordBlock(words) {
 	return { positioned, lineCount: line + 1 };
 }
 
-// Two variants of the same frame graphic, differing only in what each
-// word's color is based on: its own edit count, or its containing
-// sentence's. Same block of words, same layout -- just a different
-// color source, so the two are directly comparable.
-const FRAME_VARIANTS = {
-	word: {
-		pixelsId: "frame-pixels",
-		bgId: "frame-bg",
-		downloadBtnId: "download-frame-btn"
-	},
-	sentence: {
-		pixelsId: "frame-pixels-sentence",
-		bgId: "frame-bg-sentence",
-		downloadBtnId: "download-frame-sentence-btn"
-	}
-};
-
 // A poster-sized (8.5x11in, portrait) pixel mosaic of the most heavily
-// edited ~250-word block in the document — one rect per word, positioned
-// to match its real (line, column) within the block, then blurred (via
-// an SVG filter) so neighboring cells blend into each other instead of
-// reading as hard-edged tiles. The "word" variant colors each rect by
-// that word's own edit count; the "sentence" variant colors it by the
-// count of the sentence it belongs to, so a whole sentence reads as one
-// color even though it's still rendered as individual word-sized cells.
+// edited ~250-word block in the document, one rect per word. Follows
+// the same Word/Sentence toggle as the document heatmap (see
+// renderHeatmap): in "word" mode each rect is colored by that word's
+// own edit count, in "sentence" mode by the count of the sentence it
+// belongs to, so a whole sentence reads as one color even though it's
+// still rendered as individual word-sized cells.
 function renderFrameGraphic(wordLedger, sentenceLedger, palette, variant) {
-	const { pixelsId, bgId, downloadBtnId } = FRAME_VARIANTS[variant];
-	const pixels = document.getElementById(pixelsId);
-	const bg = document.getElementById(bgId);
-	const downloadBtn = document.getElementById(downloadBtnId);
+	const pixels = document.getElementById("frame-pixels");
+	const bg = document.getElementById("frame-bg");
+	const downloadBtn = document.getElementById("download-frame-btn");
+	document.getElementById("frame-label").textContent =
+		variant === "sentence"
+			? "Frame — most-edited 250 words, colored by sentence"
+			: "Frame — most-edited 250 words, colored by word";
 
 	if (!wordLedger || wordLedger.length === 0) {
 		pixels.innerHTML = "";
@@ -885,10 +867,7 @@ function downloadFrameGraphic(svgId, filename) {
 }
 
 document.getElementById("download-frame-btn").addEventListener("click", () => {
-	downloadFrameGraphic("frame-graphic", "brushstrokes-frame-word.jpg");
-});
-document.getElementById("download-frame-sentence-btn").addEventListener("click", () => {
-	downloadFrameGraphic("frame-graphic-sentence", "brushstrokes-frame-sentence.jpg");
+	downloadFrameGraphic("frame-graphic", `brushstrokes-frame-${currentAnalysisMode}.jpg`);
 });
 
 // The heatmap's word/sentence spans are rebuilt from scratch on every
@@ -904,17 +883,14 @@ function fadeToRerenderedHeatmap() {
 	const output = document.getElementById("doc-output");
 	const legendGradient = document.getElementById("legend-gradient");
 	const frameGraphic = document.getElementById("frame-graphic");
-	const frameGraphicSentence = document.getElementById("frame-graphic-sentence");
 	output.style.opacity = "0";
 	legendGradient.style.opacity = "0";
 	frameGraphic.style.opacity = "0";
-	frameGraphicSentence.style.opacity = "0";
 	setTimeout(() => {
 		renderHeatmap(currentSentenceLedger, currentWordLedger);
 		output.style.opacity = "1";
 		legendGradient.style.opacity = "1";
 		frameGraphic.style.opacity = "1";
-		frameGraphicSentence.style.opacity = "1";
 	}, PALETTE_FADE_MS);
 }
 
