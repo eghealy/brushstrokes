@@ -1064,9 +1064,43 @@ function initAnalysisToggle() {
 	});
 }
 
+// On narrow screens (see @media max-width: 900px in style.css), the
+// palette + style rails act as a slide-up drawer instead of two
+// permanent floating panels, toggled by a small floating button.
+// This just wires the open/close interactions; the drawer-vs-rail
+// presentation itself is pure CSS keyed off body.mobile-drawer-open.
+function initMobileDrawer() {
+	const fab = document.getElementById("mobile-adjust-fab");
+	const backdrop = document.getElementById("mobile-drawer-backdrop");
+	const closeBtn = document.getElementById("mobile-drawer-close");
+
+	function openDrawer() {
+		document.body.classList.add("mobile-drawer-open");
+		backdrop.hidden = false;
+		fab.setAttribute("aria-expanded", "true");
+	}
+
+	function closeDrawer() {
+		document.body.classList.remove("mobile-drawer-open");
+		backdrop.hidden = true;
+		fab.setAttribute("aria-expanded", "false");
+	}
+
+	fab.addEventListener("click", () => {
+		if (document.body.classList.contains("mobile-drawer-open")) {
+			closeDrawer();
+		} else {
+			openDrawer();
+		}
+	});
+	backdrop.addEventListener("click", closeDrawer);
+	closeBtn.addEventListener("click", closeDrawer);
+}
+
 applyPaletteTheme(PALETTES[currentPaletteKey]);
 populatePaletteRail();
 initAnalysisToggle();
+initMobileDrawer();
 
 // Long status text (e.g. an error body Google sends back) is truncated
 // to this many characters, with a "Show more" toggle to read the rest.

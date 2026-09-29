@@ -87,7 +87,7 @@
 			<p>To create this tool, I used Claude Code. While I have an interest in creative coding and have dabbled in website design, I could never have made this project on my own.</p>
 			<p>I used A.I. to build the site; to create the javascript app that translates revision history into colors. However, the idea for Brushstrokes, the idea for each feature, each color palette, the site copy – all was written by a human, E.G. Healy.</p>
 			<p>This is a delicate balance. Using A.I. as a teaching resource, but drawing the line at using A.I. to write prose, is perhaps a little counterintuitive. But I use spellcheck every day – in fact, I appreciate it greatly – even though it is not my own invention. </p>
-			<p>I do NOT use A.I. to create art. I do not condone the use of A.I. to create art. I have never used A.I. to write creatively, and I am always happy to share the many, many, many drafts that scaffold a finished short story. My first drafts are always handwritten, in my own barely-legible scrawl.</p>
+			<p>I do NOT use A.I. to create art. I do not condone the use of A.I. to create art. I have never used A.I. to write creatively, and I am always happy to share the many, many, many drafts that scaffold a finished short story. My first drafts are always handwritten &mdash; in my own barely-legible scrawl &mdash; typed, and revised.</p>
 		</details>
 
 		<details class="content-card" id="section-privacy" open>
@@ -113,7 +113,9 @@
 		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
 	</nav>
 
-	<div class="right-rail-group">
+	<div class="right-rail-group" id="right-rail-group">
+		<button type="button" class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close">&times;</button>
+
 		<nav class="palette-rail" id="palette-rail" aria-label="Choose a color palette">
 			<span class="rail-title">Palette</span>
 			<button type="button" class="palette-rail-scroll-btn palette-rail-scroll-up" id="palette-scroll-up" aria-label="Scroll palettes up"></button>
@@ -152,6 +154,25 @@
 		<span class="footnote-label" id="word-footnote-preview-label">Footnote</span>
 		<div id="word-footnote-preview-content"></div>
 	</div>
+
+	<!--
+		Mobile only (see @media max-width: 900px in style.css): the palette
+		and style rails move into #right-rail-group acting as a slide-up
+		drawer instead of two permanent floating panels, so they don't
+		eat into an already-small screen until actually opened.
+	-->
+	<button type="button" class="mobile-adjust-fab" id="mobile-adjust-fab" aria-label="Open style and palette controls" aria-expanded="false" aria-controls="right-rail-group">
+		<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+			<line x1="4" y1="7" x2="20" y2="7"></line>
+			<circle cx="9" cy="7" r="2" fill="currentColor" stroke="none"></circle>
+			<line x1="4" y1="14" x2="20" y2="14"></line>
+			<circle cx="16" cy="14" r="2" fill="currentColor" stroke="none"></circle>
+			<line x1="4" y1="21" x2="20" y2="21"></line>
+			<circle cx="11" cy="21" r="2" fill="currentColor" stroke="none"></circle>
+		</svg>
+	</button>
+
+	<div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop" hidden></div>
 
 	<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
