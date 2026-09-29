@@ -39,7 +39,7 @@
 		</details>
 
 		<div class="control-card" id="style-card">
-			<div class="toolbar">
+			<h2 class="control-card-heading">Toolkit</h2><div class="toolbar">
 				<span class="toolbar-group-label">Style</span>
 				<div class="segmented" id="analysis-toggle" role="group" aria-label="Analysis mode">
 					<button type="button" class="segmented-option" data-mode="sentence">Sentence</button>
@@ -48,6 +48,7 @@
 			</div>
 
 			<div class="legend" id="legend" hidden>
+				<span class="toolbar-group-label">Legend</span>
 				<span class="legend-label">Edited less</span>
 				<span class="legend-gradient" id="legend-gradient" aria-hidden="true"></span>
 				<span class="legend-label">Edited more</span>
@@ -55,9 +56,11 @@
 		</div>
 
 		<div class="control-card" id="revision-heatmap-card">
-			<h2 class="control-card-heading">Revision Heatmap</h2>
+			<h2 class="control-card-heading">Record of critical decisions</h2>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
+				<button type="button" id="upload-drafts-btn" class="btn btn-primary">Upload Drafts</button>
+				<input type="file" id="drafts-file-input" accept=".txt,.docx" multiple hidden>
 				<span class="mode-label" id="mode-label">No document loaded</span>
 			</div>
 
@@ -67,27 +70,34 @@
 			<article id="doc-output" class="doc-output" aria-live="polite"></article>
 		</div>
 
-		<div class="frame-standalone" id="section-frame">
-			<span class="frame-label" id="frame-label">Frame &mdash; most-edited 250 words</span>
-			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word or sentence depending on the current style, colored by how much it was edited">
-				<defs>
-					<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
-						<feGaussianBlur stdDeviation="4"></feGaussianBlur>
-					</filter>
-				</defs>
-				<rect id="frame-bg" width="850" height="1100" fill="#0a2243"></rect>
-				<g id="frame-pixels" filter="url(#frame-blur)"></g>
-			</svg>
-		</div>
-
 		<section class="footnote-panel">
-			<span class="footnote-label">Export</span>
+			<span class="footnote-label">Frame</span>
 			<p class="footnote-placeholder">A snapshot of the most heavily edited portion of your story, rendered according to your chosen color palette.</p>
 			<button type="button" id="download-frame-btn" class="btn btn-primary" disabled title="Load a document first">Download as JPEG</button>
 		</section>
 
+		<div class="frame-standalone" id="section-frame">
+			<span class="frame-label" id="frame-label">Frame &mdash; most-edited 250 words</span>
+			<div class="frame-graphic-wrap">
+				<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word or sentence depending on the current style, colored by how much it was edited">
+					<!--<defs>
+						<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
+							<feGaussianBlur stdDeviation="4"></feGaussianBlur>
+						</filter>
+					</defs>-->
+					<rect id="frame-bg" width="850" height="1100" fill="#0a2243"></rect>
+					<g id="frame-pixels" filter="url(#frame-blur)"></g>
+				</svg>
+				<div class="frame-loading" id="frame-loading" hidden>
+					<span>Loading frame</span>
+					<span class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+				</div>
+			</div>
+		</div>
+
+		
 		<details class="content-card" id="section-ai" open>
-			<summary><h2>How can writers use A.I., if at all?</h2></summary>
+			<summary><h2>Nuance</h2></summary>
 			<p>This website is not a work of art. It is a resource; a demonstration; a way for writers to look at their own work and creative process in a new way. To evaluate their process against an ideal. I created Brushstrokes for myself, as a reminder that each word I write is worthy of revision. I aspire to treat every sentence that crosses my pen with careful consideration.</p>
 			<p>To create this tool, I used Claude Code. While I have an interest in creative coding and have dabbled in website design, I could never have made this project on my own.</p>
 			<p>I used A.I. to build the site; to create the javascript app that translates revision history into colors. However, the idea for Brushstrokes, the idea for each feature, each color palette, the site copy – all was written by a human, E.G. Healy.</p>
@@ -130,6 +140,7 @@
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 	<script src="https://accounts.google.com/gsi/client" async defer></script>
 	<script src="https://apis.google.com/js/api.js" async defer></script>
 	<script src="app.js"></script>
