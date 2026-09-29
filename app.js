@@ -1050,6 +1050,85 @@ function loadDemo() {
 loadDemo();
 
 /*
+ * Multiple-drafts upload.
+ *
+ * An alternative to connecting a Google Doc: pick several local files,
+ * each a separate draft of the same piece, and treat them as a
+ * revision sequence -- oldest to newest, ordered by each file's own
+ * last-modified timestamp rather than trusting filenames to sort
+ * correctly. Everything happens in this browser tab; files are never
+ * uploaded anywhere. Feeds the exact same computeSentenceLedger /
+ * computeWordLedger / renderHeatmap pipeline used everywhere else.
+ */
+
+// Pulls the visible text out of a .docx's word/document.xml -- walks
+// paragraphs and text runs, ignoring tracked-changes markup entirely
+// (this just wants "what does the document say", not "what changed").
+async function extractDocxText(file) {
+	const zip = await JSZip.loadAsync(file);
+	const documentXmlFile = zip.file("word/document.xml");
+	if (!documentXmlFile) throw new Error(`"${file.name}" doesn't look like a valid .docx file`);
+	const xmlText = await documentXmlFile.async("text");
+	const xmlDoc = new DOMParser().parseFromString(xmlText, "application/xml");
+
+	const paragraphs = Array.from(xmlDoc.getElementsByTagName("w:p"));
+	return paragraphs
+		.map((p) => Array.from(p.getElementsByTagName("w:t")).map((t) => t.textContent).join(""))
+		.join("\n");
+}
+
+function extractFileText(file) {
+	return file.name.toLowerCase().endsWith(".docx") ? extractDocxText(file) : file.text();
+}
+
+// Sorts by last-modified time rather than filename -- more reliable
+// than trusting the user to name files in an order that happens to
+// sort correctly, and avoids ambiguity when it doesn't.
+function sortFilesByLastModified(files) {
+	return [...files].sort((a, b) => a.lastModified - b.lastModified);
+}
+
+async function loadDraftFiles(files) {
+	if (files.length === 0) return;
+
+	setSourceStatus(`Reading ${files.length} draft${files.length === 1 ? "" : "s"}…`, { loading: true });
+	const orderedFiles = sortFilesByLastModified(files);
+
+	let texts;
+	try {
+		texts = await Promise.all(orderedFiles.map((file) => extractFileText(file)));
+	} catch (err) {
+		console.error("Brushstrokes: failed to read draft files", err);
+		setSourceStatus(`Couldn't read those files: ${err.message}`, { error: true });
+		return;
+	}
+
+	const sentenceLedger = computeSentenceLedger(texts);
+	const wordLedger = computeWordLedger(texts);
+	renderHeatmap(sentenceLedger, wordLedger, texts[texts.length - 1]);
+
+	document.getElementById("doc-title").textContent =
+		orderedFiles.length === 1 ? orderedFiles[0].name : `${orderedFiles.length} uploaded drafts`;
+
+	// Names are shown in the detected order so a mis-sort (e.g. files
+	// with unhelpful last-modified timestamps) is obvious rather than
+	// silent.
+	const fileNames = orderedFiles.map((f) => f.name).join(", ");
+	setSourceStatus(
+		`Loaded ${orderedFiles.length} draft${orderedFiles.length === 1 ? "" : "s"}, oldest to newest: ${fileNames}`
+	);
+}
+
+document.getElementById("upload-drafts-btn").addEventListener("click", () => {
+	document.getElementById("drafts-file-input").click();
+});
+
+document.getElementById("drafts-file-input").addEventListener("change", (event) => {
+	loadDraftFiles(Array.from(event.target.files));
+	event.target.value = "";
+});
+
+/*
  * Google Doc integration.
  *
  * Everything below runs entirely in this browser tab: it exchanges an

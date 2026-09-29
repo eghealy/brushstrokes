@@ -58,6 +58,8 @@
 			<h2 class="control-card-heading">Revision Heatmap</h2>
 			<div class="toolbar">
 				<button type="button" id="connect-doc-btn" class="btn btn-primary">Connect Google Doc</button>
+				<button type="button" id="upload-drafts-btn" class="btn btn-primary">Upload Drafts</button>
+				<input type="file" id="drafts-file-input" accept=".txt,.docx" multiple hidden>
 				<span class="mode-label" id="mode-label">No document loaded</span>
 			</div>
 
@@ -71,9 +73,9 @@
 			<span class="frame-label" id="frame-label">Frame &mdash; most-edited 250 words</span>
 			<svg id="frame-graphic" class="frame-graphic" viewBox="0 0 850 1100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A blended pixel mosaic of the most heavily edited 250-word block in the document, one cell per word or sentence depending on the current style, colored by how much it was edited">
 				<defs>
-					<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
+					<!--<filter id="frame-blur" x="-10%" y="-10%" width="120%" height="120%">
 						<feGaussianBlur stdDeviation="4"></feGaussianBlur>
-					</filter>
+					</filter>-->
 				</defs>
 				<rect id="frame-bg" width="850" height="1100" fill="#0a2243"></rect>
 				<g id="frame-pixels" filter="url(#frame-blur)"></g>
@@ -130,6 +132,7 @@
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/diff@5.2.0/dist/diff.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 	<script src="https://accounts.google.com/gsi/client" async defer></script>
 	<script src="https://apis.google.com/js/api.js" async defer></script>
 	<script src="app.js"></script>
