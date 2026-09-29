@@ -406,6 +406,10 @@ button.btn-primary:hover:not(:disabled) {
 	flex-direction: column;
 	align-items: center;
 	gap: 0.5rem;
+	/* The active-thumbnail ring's box-shadow extends 4px past its own
+	   box; without padding here, overflow clips that ring right at the
+	   scroll boundary for whichever thumbnail sits closest to it. */
+	padding: 0.3rem;
 	overflow-y: hidden;
 	scroll-behavior: smooth;
 	flex: 1 1 auto;
