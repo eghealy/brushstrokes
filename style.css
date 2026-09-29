@@ -196,6 +196,15 @@ button.btn-primary:hover:not(:disabled) {
 	overflow-y: auto;
 }
 
+.jump-rail-title {
+	font-family: "Source Sans 3", sans-serif;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--color-text-faint);
+}
+
 .jump-rail a {
 	font-family: "Source Sans 3", sans-serif;
 	font-size: 0.8rem;
@@ -205,6 +214,15 @@ button.btn-primary:hover:not(:disabled) {
 }
 
 .jump-rail a:hover {
+	color: var(--color-highlight);
+}
+
+.jump-rail-number {
+	color: var(--color-text-faint);
+	font-weight: 600;
+}
+
+.jump-rail a:hover .jump-rail-number {
 	color: var(--color-highlight);
 }
 
