@@ -313,6 +313,17 @@ button.btn-primary:hover:not(:disabled) {
 	width: 100%;
 }
 
+/* Parallel to .legend below -- both are a .rail-title directly above
+   their own content (radios here, the gradient bar there), so the two
+   labels sit at the same structural level instead of one being a
+   sub-heading nested under the other. */
+.style-rail-col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+}
+
 .rail-title {
 	font-family: "Source Sans 3", sans-serif;
 	font-size: 0.7rem;
