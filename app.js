@@ -1084,6 +1084,12 @@ const MAX_RETRY_ATTEMPTS = 6;
 let currentFileId = null;
 let currentResourceKey = null;
 
+// Which Google account the current access token actually belongs to --
+// surfaced in error messages so an account-mismatch (token for account
+// A, file picked while looking at account B's Drive) is visible without
+// opening devtools.
+let currentAccountEmail = null;
+
 async function driveApiFetch(url, attempt = 1) {
 	const headers = { Authorization: `Bearer ${googleAccessToken}` };
 	if (currentFileId && currentResourceKey) {
@@ -1229,7 +1235,8 @@ function openDocPicker() {
 			currentResourceKey = doc.resourceKey || null;
 			loadGoogleDoc(fileId).catch((err) => {
 				console.error("Brushstrokes: failed to load Google Doc", err);
-				setSourceStatus(`Couldn't load that document: ${err.message}`, { error: true });
+				const accountNote = currentAccountEmail ? ` (signed in as ${currentAccountEmail})` : "";
+				setSourceStatus(`Couldn't load that document${accountNote}: ${err.message}`, { error: true });
 			});
 		})
 		.build();
@@ -1252,6 +1259,14 @@ function initGoogleAuth() {
 				return;
 			}
 			googleAccessToken = response.access_token;
+			currentAccountEmail = null;
+			driveApiFetch("https://www.googleapis.com/drive/v3/about?fields=user")
+				.then((res) => res.json())
+				.then((data) => {
+					currentAccountEmail = data.user && data.user.emailAddress;
+					console.log("Brushstrokes: signed in as", currentAccountEmail);
+				})
+				.catch((err) => console.error("Brushstrokes: couldn't identify signed-in account", err));
 			openDocPicker();
 		}
 	});
