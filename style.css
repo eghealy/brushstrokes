@@ -173,6 +173,70 @@ button.btn-primary:hover:not(:disabled) {
 	align-self: center;
 }
 
+/*
+ * Fixed vertical rail of palette thumbnails, pinned to the right edge
+ * of the viewport so it's reachable from anywhere on the page. Click a
+ * thumbnail to switch palettes — see populatePaletteRail() in app.js.
+ */
+.palette-rail {
+	position: fixed;
+	top: 50%;
+	right: 1.25rem;
+	transform: translateY(-50%);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border-radius: 0.7rem;
+	background-color: var(--color-panel-bg);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	max-height: 80vh;
+	overflow-y: auto;
+}
+
+.palette-rail-item {
+	display: block;
+	padding: 0;
+	line-height: 0;
+	border: 2px solid transparent;
+	border-radius: 0.4rem;
+	background: none;
+	cursor: pointer;
+	transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.palette-rail-item:hover {
+	border-color: var(--color-highlight);
+	transform: scale(1.06);
+}
+
+.palette-rail-item.active {
+	border-color: var(--color-highlight);
+	box-shadow: 0 0 0 2px var(--color-panel-bg), 0 0 0 4px var(--color-highlight);
+}
+
+.palette-rail-thumb {
+	display: block;
+	width: 2.75rem;
+	height: 2.75rem;
+	object-fit: cover;
+	border-radius: 0.25rem;
+}
+
+@media (max-width: 900px) {
+	.palette-rail {
+		right: 0.5rem;
+		gap: 0.35rem;
+		padding: 0.35rem;
+	}
+
+	.palette-rail-thumb {
+		width: 2rem;
+		height: 2rem;
+	}
+}
+
 .legend {
 	display: flex;
 	align-items: center;
