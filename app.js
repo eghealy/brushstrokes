@@ -1210,10 +1210,16 @@ function disableConnectButton(reason) {
 	connectBtn.title = reason;
 }
 
+// The Google Cloud project number, needed by setAppId() below -- it's
+// the leading numeric segment of the OAuth client ID, before the first
+// hyphen, by Google's client ID format convention.
+const GOOGLE_APP_ID = GOOGLE_CLIENT_ID.split("-")[0];
+
 function openDocPicker() {
 	const picker = new google.picker.PickerBuilder()
 		.setOAuthToken(googleAccessToken)
 		.setDeveloperKey(GOOGLE_API_KEY)
+		.setAppId(GOOGLE_APP_ID)
 		.addView(
 			new google.picker.DocsView(google.picker.ViewId.DOCUMENTS).setMimeTypes(
 				"application/vnd.google-apps.document"
