@@ -302,6 +302,7 @@ button.btn-primary:hover:not(:disabled) {
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
+	flex-shrink: 0;
 }
 
 .rail-title {
@@ -343,16 +344,69 @@ button.btn-primary:hover:not(:disabled) {
 .palette-rail {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	align-items: center;
+	gap: 0.3rem;
 	padding: 0.5rem;
 	border-radius: 0.7rem;
 	background-color: var(--color-panel-bg);
 	border: 1px solid rgba(255, 255, 255, 0.08);
-	overflow-y: auto;
+	min-height: 0;
+}
+
+/* Caret buttons replace a visible scrollbar for the thumbnail list. */
+.palette-rail-scroll-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 0.15rem 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.palette-rail-scroll-btn::before {
+	content: "";
+	width: 0;
+	height: 0;
+	border: 5px solid transparent;
+}
+
+.palette-rail-scroll-up::before {
+	border-bottom-color: var(--color-text-faint);
+}
+
+.palette-rail-scroll-down::before {
+	border-top-color: var(--color-text-faint);
+}
+
+.palette-rail-scroll-up:hover:not(:disabled)::before {
+	border-bottom-color: var(--color-highlight);
+}
+
+.palette-rail-scroll-down:hover:not(:disabled)::before {
+	border-top-color: var(--color-highlight);
+}
+
+.palette-rail-scroll-btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.35;
+}
+
+.palette-rail-list {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	overflow-y: hidden;
+	scroll-behavior: smooth;
+	flex: 1 1 auto;
+	min-height: 0;
 }
 
 .palette-rail-item {
 	display: block;
+	flex-shrink: 0;
 	padding: 0;
 	line-height: 0;
 	border: 2px solid transparent;
@@ -489,6 +543,11 @@ button.btn-primary:hover:not(:disabled) {
 	line-height: 1.2;
 	text-align: center;
 	color: var(--color-text-muted);
+}
+
+.legend .rail-title {
+	align-self: flex-start;
+	text-align: left;
 }
 
 /* display:flex on the bare class would beat the browser's default
