@@ -5,13 +5,13 @@
  * the heat gradient work.
  */
 const MOCK_REVISIONS = [
-	"She knew there was nothing left to be done. There she was, at a dead-end road. The police behind her, waiting. She was content knowing that she had fought until the end.",
-	"Robin knew there was nothing left to be done. There she stood, at the end of a dead-end road. The police behind her, waiting. She was content knowing that she had fought until the end.",
-	"Robin knew there was nothing left to be done. She crouched, brambles tugging at her socks, at the end of a cul-de-sac. The police behind her, waiting. She was content knowing that she had fought until the end.",
-	"Robin knew there was nothing left to be done. She crouched in a shallow culvert, brambles tugging at her socks, at the end of the cul-de-sac. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the end.",
-	"Robin knew it was over. She crouched in a shallow culvert, brambles tugging at her slacks, at the end of the cul-de-sac. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end.",
-	"Robin knew it was over. She crouched in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks. The police barricade spilled from the street into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end.",
-	"Robin closed her eyes. She knew it was over. Crouching in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks, sirens and megaphones bleating all around. The police barricade spilled from the street into the Merrymans' front lawn. Ruining the grass. Robin was content knowing that she had fought until the very end."
+	"Robin closed her eyes. She knew there was nothing left to be done. There she crouched, at the end of a dead-end road. The police behind her, waiting. Robin was content knowing that she had fought until the end.",
+	"Robin closed her eyes. She knew there was nothing left to be done. There she crouched, at the end of a dead-end road. The police behind her, swarming like ants. Robin was content knowing that she had fought until the end.",
+	"Robin closed her eyes. She knew there was nothing left to be done. She crouched, brambles tugging at her socks, at the end of the cul-de-sac. The police behind her, sirens and megaphones bleating. Robin was content knowing that she had fought until the end.",
+	"Robin closed her eyes. She knew there was nothing left to be done. She crouched, brambles tugging at her socks, at the end of the cul-de-sac. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass.",
+	"Robin closed her eyes. She knew it was over. She crouched in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks, sirens and megaphones bleating all around. The police barricade spilled from the street and into the Merrymans' front lawn. Ruining the grass.",
+	"Robin closed her eyes. She knew it was over. She crouched in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks, sirens and megaphones bleating all around. The police barricade spilled from the street into the Merrymans' front lawn. Ruining the grass.",
+	"Robin closed her eyes. She knew it was over. Crouching in a shallow culvert at the end of her cul-de-sac, brambles tugging at her slacks, Robin practiced pilates breaths. The police barricade spilled from the street into the Merrymans' front lawn. Trampling the grass."
 ];
 
 // Splits on line breaks (one or more), so paragraph structure from the
