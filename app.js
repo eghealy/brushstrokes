@@ -462,7 +462,7 @@ function applyPaletteTheme(palette) {
 	Object.entries(theme).forEach(([prop, value]) => root.setProperty(prop, value));
 
 	updatePaintingReference(palette);
-	updatePaletteStoryCard(currentPaletteKey);
+	updatePaletteStoryCard(palette, currentPaletteKey);
 }
 
 function updatePaintingReference(palette) {
@@ -483,11 +483,15 @@ function updatePaintingReference(palette) {
 // Shows whichever .palette-story block matches the current palette and
 // hides the rest -- content is authored directly in index.html, one
 // block per palette key, so this just toggles visibility rather than
-// generating any text itself.
-function updatePaletteStoryCard(key) {
-	document.querySelectorAll(".palette-story, .palette-story-title").forEach((el) => {
+// generating any text itself. The header above it is simple enough not
+// to need that treatment: just a plain string per palette (optional --
+// falls back to a generic title for any palette that doesn't set one).
+function updatePaletteStoryCard(palette, key) {
+	document.querySelectorAll(".palette-story").forEach((el) => {
 		el.hidden = el.dataset.paletteKey !== key;
 	});
+	document.getElementById("palette-story-title").textContent =
+		palette.storyTitle || "On the chosen painting";
 }
 
 // The core heat-gradient interpolation: given a normalized edit-heat
