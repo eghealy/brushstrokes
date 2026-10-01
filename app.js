@@ -483,15 +483,17 @@ function updatePaintingReference(palette) {
 // Shows whichever .palette-story block matches the current palette and
 // hides the rest -- content is authored directly in index.html, one
 // block per palette key, so this just toggles visibility rather than
-// generating any text itself. The header above it is simple enough not
-// to need that treatment: just a plain string per palette (optional --
-// falls back to a generic title for any palette that doesn't set one).
+// generating any text itself. The header above it needs no authoring
+// at all in the common case: it's just "On " + the palette's own
+// imageTitle (already used for the painting caption). storyTitle is
+// an optional override for the rare title that reads badly with "On "
+// stuck in front of it.
 function updatePaletteStoryCard(palette, key) {
 	document.querySelectorAll(".palette-story").forEach((el) => {
 		el.hidden = el.dataset.paletteKey !== key;
 	});
 	document.getElementById("palette-story-title").textContent =
-		palette.storyTitle || "On the chosen painting";
+		palette.storyTitle || (palette.imageTitle ? `On ${palette.imageTitle}` : "On the chosen painting");
 }
 
 // The core heat-gradient interpolation: given a normalized edit-heat
