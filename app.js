@@ -485,7 +485,7 @@ function updatePaintingReference(palette) {
 // block per palette key, so this just toggles visibility rather than
 // generating any text itself.
 function updatePaletteStoryCard(key) {
-	document.querySelectorAll(".palette-story").forEach((el) => {
+	document.querySelectorAll(".palette-story, .palette-story-title").forEach((el) => {
 		el.hidden = el.dataset.paletteKey !== key;
 	});
 }
