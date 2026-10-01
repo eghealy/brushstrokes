@@ -462,6 +462,7 @@ function applyPaletteTheme(palette) {
 	Object.entries(theme).forEach(([prop, value]) => root.setProperty(prop, value));
 
 	updatePaintingReference(palette);
+	updatePaletteStoryCard(currentPaletteKey);
 }
 
 function updatePaintingReference(palette) {
@@ -477,6 +478,16 @@ function updatePaintingReference(palette) {
 	img.src = palette.image;
 	img.alt = captionText;
 	caption.textContent = captionText;
+}
+
+// Shows whichever .palette-story block matches the current palette and
+// hides the rest -- content is authored directly in index.html, one
+// block per palette key, so this just toggles visibility rather than
+// generating any text itself.
+function updatePaletteStoryCard(key) {
+	document.querySelectorAll(".palette-story").forEach((el) => {
+		el.hidden = el.dataset.paletteKey !== key;
+	});
 }
 
 // The core heat-gradient interpolation: given a normalized edit-heat
