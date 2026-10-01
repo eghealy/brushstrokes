@@ -493,7 +493,7 @@ function updatePaletteStoryCard(palette, key) {
 		el.hidden = el.dataset.paletteKey !== key;
 	});
 	document.getElementById("palette-story-title").textContent =
-		palette.storyTitle || (palette.imageTitle ? `On ${palette.imageTitle}` : "On the chosen painting");
+		palette.storyTitle || palette.imageTitle || "your chosen painting";
 }
 
 // The core heat-gradient interpolation: given a normalized edit-heat
