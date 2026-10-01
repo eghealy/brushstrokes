@@ -477,7 +477,19 @@ function updatePaintingReference(palette) {
 	img.style.display = "block";
 	img.src = palette.image;
 	img.alt = captionText;
-	caption.textContent = captionText;
+
+	// Only the painting title is italicized, not the artist's name --
+	// alt text stays the plain captionText string above since alt
+	// attributes can't carry markup anyway.
+	caption.innerHTML = "";
+	if (palette.imageTitle) {
+		const titleEl = document.createElement("em");
+		titleEl.textContent = palette.imageTitle;
+		caption.appendChild(titleEl);
+		caption.appendChild(document.createTextNode(`, ${palette.label}`));
+	} else {
+		caption.textContent = palette.label;
+	}
 }
 
 // Shows whichever .palette-story block matches the current palette and
