@@ -166,9 +166,10 @@ const PALETTES = {
 		highlight: "#EFBC51",
 		stops: [
 			{ t: 0, hex: "#4B1E09", alpha: 0.80},
-			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
-			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
-			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
+			{ t: 0.25, hex: "#6C100D", alpha: 0.80},
+			{ t: 0.50, hex: "#8C5B17", alpha: 0.80},
+			{ t: 0.75, hex: "#CFC5A7", alpha: 0.80},
+			{ t: 1, hex: "#ACD2DC", alpha: 0.80}
 		]
 	},
 	noahDavis: {
