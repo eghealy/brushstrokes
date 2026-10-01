@@ -166,9 +166,10 @@ const PALETTES = {
 		highlight: "#EFBC51",
 		stops: [
 			{ t: 0, hex: "#4B1E09", alpha: 0.80},
-			{ t: 0.33, hex: "#6C100D", alpha: 0.80},
-			{ t: 0.66, hex: "#8C5B17", alpha: 0.80},
-			{ t: 1, hex: "#CFC5A7", alpha: 0.80}
+			{ t: 0.25, hex: "#6C100D", alpha: 0.80},
+			{ t: 0.50, hex: "#8C5B17", alpha: 0.80},
+			{ t: 0.75, hex: "#CFC5A7", alpha: 0.80},
+			{ t: 1, hex: "#ACD2DC", alpha: 0.80}
 		]
 	},
 	noahDavis: {
@@ -462,6 +463,7 @@ function applyPaletteTheme(palette) {
 	Object.entries(theme).forEach(([prop, value]) => root.setProperty(prop, value));
 
 	updatePaintingReference(palette);
+	updatePaletteStoryCard(palette, currentPaletteKey);
 }
 
 function updatePaintingReference(palette) {
@@ -476,7 +478,35 @@ function updatePaintingReference(palette) {
 	img.style.display = "block";
 	img.src = palette.image;
 	img.alt = captionText;
-	caption.textContent = captionText;
+
+	// Only the painting title is italicized, not the artist's name --
+	// alt text stays the plain captionText string above since alt
+	// attributes can't carry markup anyway.
+	caption.innerHTML = "";
+	if (palette.imageTitle) {
+		const titleEl = document.createElement("em");
+		titleEl.textContent = palette.imageTitle;
+		caption.appendChild(titleEl);
+		caption.appendChild(document.createTextNode(`, ${palette.label}`));
+	} else {
+		caption.textContent = palette.label;
+	}
+}
+
+// Shows whichever .palette-story block matches the current palette and
+// hides the rest -- content is authored directly in index.html, one
+// block per palette key, so this just toggles visibility rather than
+// generating any text itself. The header above it needs no authoring
+// at all in the common case: it's just "On " + the palette's own
+// imageTitle (already used for the painting caption). storyTitle is
+// an optional override for the rare title that reads badly with "On "
+// stuck in front of it.
+function updatePaletteStoryCard(palette, key) {
+	document.querySelectorAll(".palette-story").forEach((el) => {
+		el.hidden = el.dataset.paletteKey !== key;
+	});
+	document.getElementById("palette-story-title").textContent =
+		palette.storyTitle || palette.imageTitle || "your chosen painting";
 }
 
 // The core heat-gradient interpolation: given a normalized edit-heat
