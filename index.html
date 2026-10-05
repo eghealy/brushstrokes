@@ -24,19 +24,6 @@
 			<span class="frame-label" id="painting-caption"></span>
 		</div>
 		
-		<details class="content-card" id="section-art" open>
-			<summary><h2>Decision-making</h2></summary>
-
-			<p>In Ted Chiang’s <i>The New Yorker</i> op-ed "<a href=https://www.newyorker.com/culture/the-weekend-essay/why-ai-isnt-going-to-make-art>Why A.I. isn’t going to make art</a>," he argues that a 10,000-word short story is created by roughly 10,000 decisions. Likewise, a painting is created by thousands of brushstrokes, each essential to the final work of art. The choices made at every level of the creative process — while plotting a story, coming up with a title, laboring over the opening sentence, or rendering a new setting — combine to create a unique work of art. A piece created by artificial intelligence glosses over minute decisions. It relies on the A.I.’s inherently derivative reasoning to fill in the contours of the project. The result may be readable, or parseable, or lukewarmly pleasing. But it cannot be art.</p>
-			<p>This project, Brushstrokes, creates a visual record of the painstaking decisions essential to creative writing.</p>
-			<p>Brushstrokes is not a work of art. It is a tool: Brushstrokes abstracts prose into a version history designed to help the writer recognize patterns in her editing process. It is a clouded lens to layer over her story, smudging up the particulars and leaving only aggregate data: visual pockets of prose that have never been revised, paragraphs that deserve a second, third, or fourth critical review. Great stories can be analyzed word for word, every character rich with meaning. What I’m trying to say is: revision is a beautiful thing. Brushstrokes is a blunt tool, but I hope it will encourage writers to embrace the choice-making essential to creating art.</p>
-			<p>Maybe the writer's sentences were conceived and composed well before pen met paper, like Jack Kerouac’s premeditated scroll rolling through his typewriter. Maybe her first draft was more like an exorcism and bears no resemblance to the piece you proudly submitted to the Paris Review. The images generated below are more colorful, more beautiful, the more a piece has been revised.</p>
-			<p>Identifying patterns in a writer’s creative process is one thing. Elevating prose into art is another beast entirely. Brushstrokes will not fix a flat character or a fuzzy plot line. It won’t discover the perfect adjective, and it won’t tell you when a joke isn’t landing. That’s up to the writer. Brushstrokes can, however, show you how far your drafts have come. It’s also pretty fun to use. Explore different color palettes, export a custom graphic for your latest draft. Enjoy!</p>
-			<!--<h3>On the selected painting</h3>
-			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in &mdash; there is no backend server for this site. Brushstrokes has no database and no API to send your writing to, even if it wanted to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab.</p>
-		-->
-		</details>
-
 		<details class="content-card" id="section-palette-story" open>
 			<summary><h2><em id="palette-story-title">On your chosen painting</em></h2></summary>
 
@@ -104,6 +91,19 @@
 			</div>
 		</details>
 
+		<details class="content-card" id="section-art" open>
+			<summary><h2>Decision-making</h2></summary>
+
+			<p>In Ted Chiang’s <i>The New Yorker</i> op-ed "<a href=https://www.newyorker.com/culture/the-weekend-essay/why-ai-isnt-going-to-make-art>Why A.I. isn’t going to make art</a>," he argues that a 10,000-word short story is created by roughly 10,000 decisions. Likewise, a painting is created by thousands of brushstrokes, each essential to the final work of art. The choices made at every level of the creative process — while plotting a story, coming up with a title, laboring over the opening sentence, or rendering a new setting — combine to create a unique work of art. A piece created by artificial intelligence glosses over minute decisions. It relies on the A.I.’s inherently derivative reasoning to fill in the contours of the project. The result may be readable, or parseable, or lukewarmly pleasing. But it cannot be art.</p>
+			<p>This project, Brushstrokes, creates a visual record of the painstaking decisions essential to creative writing.</p>
+			<p>Brushstrokes is not a work of art. It is a tool: Brushstrokes abstracts prose into a version history designed to help the writer recognize patterns in her editing process. It is a clouded lens to layer over her story, smudging up the particulars and leaving only aggregate data: visual pockets of prose that have never been revised, paragraphs that deserve a second, third, or fourth critical review. Great stories can be analyzed word for word, every character rich with meaning. What I’m trying to say is: revision is a beautiful thing. Brushstrokes is a blunt tool, but I hope it will encourage writers to embrace the choice-making essential to creating art.</p>
+			<p>Maybe the writer's sentences were conceived and composed well before pen met paper, like Jack Kerouac’s premeditated scroll rolling through his typewriter. Maybe her first draft was more like an exorcism and bears no resemblance to the piece you proudly submitted to the Paris Review. The images generated below are more colorful, more beautiful, the more a piece has been revised.</p>
+			<p>Identifying patterns in a writer’s creative process is one thing. Elevating prose into art is another beast entirely. Brushstrokes will not fix a flat character or a fuzzy plot line. It won’t discover the perfect adjective, and it won’t tell you when a joke isn’t landing. That’s up to the writer. Brushstrokes can, however, show you how far your drafts have come. It’s also pretty fun to use. Explore different color palettes, export a custom graphic for your latest draft. Enjoy!</p>
+			<!--<h3>On the selected painting</h3>
+			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in &mdash; there is no backend server for this site. Brushstrokes has no database and no API to send your writing to, even if it wanted to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab.</p>
+		-->
+		</details>
+
 		<div class="control-card" id="revision-heatmap-card">
 			<h2 class="control-card-heading">Record</h2>
 			<p>Connect a single Google Doc , or upload multiple .doc files of the same piece to visualize how your work has evolved over time.</p>
@@ -147,7 +147,7 @@
 		</div>
 
 		
-		<details class="content-card" id="section-ai" open>
+		<!--<details class="content-card" id="section-ai" open>
 			<summary><h2>Nuance</h2></summary>
 			<p>This website is not a work of art.</p>
 			<p>To create this tool, I used Claude Code. While I have an interest in creative coding and have dabbled in website design, I could never have made this project on my own. With my direction, Claude wrote the javascript app that translates revision history into colors. The idea for Brushstrokes and its features, each color palette, the copy – all was conceived by a human, E.G. Healy.</p>
@@ -161,7 +161,7 @@
 			<p>When you connect a Google Doc, your browser talks directly to Google using your own sign-in — there is no backend server for this site. Brushstrokes has no database and no API to send your writing to. Every calculation, from comparing revisions to painting the heatmap, happens locally in your browser's memory and disappears the moment you close the tab. If you use Google Docs, your writing already lives on Google's servers. But using Brushstrokes does not add a new party to that relationship, and Brushstrokes does not keep a copy of your work.</p>
 			<p>The comparisons that power this heatmap come from a plain, deterministic text-diffing algorithm — the same category of tool used by version control systems like Git. It's math, not A.I., and version controls have been around for a while. Your writing is never sent to Claude, ChatGPT, Gemini, or any other A.I. model, and it is never used to train one.</p>
 			<p>Read the full <a href="privacy.html">Privacy Policy</a>.</p>
-		</details>
+		</details>-->
 	</main>
 
 	<nav class="jump-rail" aria-label="Jump to a section">
@@ -169,8 +169,8 @@
 		<a href="#section-art"><span class="jump-rail-number">01.</span> Decision-making</a>
 		<a href="#revision-heatmap-card"><span class="jump-rail-number">02.</span> Record</a>
 		<a href="#section-frame"><span class="jump-rail-number">03.</span> Framing</a>
-		<a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
-		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>
+		<!-- <a href="#section-ai"><span class="jump-rail-number">04.</span> Nuance</a>
+		<a href="#section-privacy"><span class="jump-rail-number">05.</span> Privacy</a>-->
 	</nav>
 
 	<div class="right-rail-group" id="right-rail-group">
